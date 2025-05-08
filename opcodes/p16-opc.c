@@ -74,10 +74,10 @@ const inst p16_instruction[] =
   {"bzc",   INST_LEN, 0x4400, 0xFC00, BRANCH_INS, {{imm10, 0}}},
   
   {"bcs",   INST_LEN, 0x4800, 0xFC00, BRANCH_INS, {{imm10, 0}}},
-  {"blo",   INST_LEN, 0x4800, 0xFC00, BRANCH_INS, {{imm10, 0}}},
+  {"bhs",   INST_LEN, 0x4800, 0xFC00, BRANCH_INS, {{imm10, 0}}},
   
   {"bcc",   INST_LEN, 0x4C00, 0xFC00, BRANCH_INS, {{imm10, 0}}},
-  {"bhs",   INST_LEN, 0x4C00, 0xFC00, BRANCH_INS, {{imm10, 0}}},
+  {"blo",   INST_LEN, 0x4C00, 0xFC00, BRANCH_INS, {{imm10, 0}}},
   
   {"bge",   INST_LEN, 0x5000, 0xFC00, BRANCH_INS, {{imm10, 0}}},
   {"blt",   INST_LEN, 0x5400, 0xFC00, BRANCH_INS, {{imm10, 0}}},

@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"includePath": [
+
+            ]
+		}
+	],
+	"settings": {
+		"C_Cpp.default.includePath": [
+			"${workspaceFolder}/**",
+		],
+		"files.associations": {
+			"common.h": "c",
+			"stdio.h": "c",
+			"symcat.h": "c",
+			"libiberty.h": "c"
+		}
+	}
+}

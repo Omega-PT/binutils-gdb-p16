@@ -58,9 +58,8 @@ const inst p16_instruction[] =
 
   {"mov",   INST_LEN, 0xB000, 0xF870, ARITH_INS, {{regr, 0}, {regr, 7}}},
   {"mvn",   INST_LEN, 0xB010, 0xF870, ARITH_INS, {{regr, 0}, {regr, 7}}},
+  {"movs",  INST_LEN, 0XB020, 0xF870, ARITH_INS, {}},
 
-  {"movs"},
-  // TODO - Figure out how to differentiate the instructions
   {"msr",   INST_LEN, 0xB040, 0xF860, ARITH_INS, {{p_regr, 4}, {regr, 7}}},
   {"mrs",   INST_LEN, 0xB060, 0xF860, ARITH_INS, {{regr, 0}}, {p_regr, 4}},
 

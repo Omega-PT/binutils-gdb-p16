@@ -125,6 +125,7 @@ static reloc_howto_type *elf_p16_reloc_name_lookup(
   return NULL;
 }
 
+/* Performs a single relocation, called from elf32_p16_relocate_section */
 static bfd_reloc_status_type p16_elf_final_link_relocate(
 	reloc_howto_type *howto,
 	bfd *input_bfd,
@@ -148,7 +149,7 @@ static bfd_reloc_status_type p16_elf_final_link_relocate(
 	return r;
 }
 
-/* Relocate a P16 ELF section.  */
+/* Relocate a P16 ELF section. */
 static int elf32_p16_relocate_section (
 	bfd *output_bfd,
 	struct bfd_link_info *info,

@@ -138,7 +138,14 @@ static bfd_reloc_status_type p16_elf_final_link_relocate(
 	asection *sec ATTRIBUTE_UNUSED,
 	int is_local ATTRIBUTE_UNUSED	
 ) {
+	bfd_reloc_status_type r;
 
+	r = _bfd_final_link_relocate(
+		howto, input_bfd, input_section,
+		contents, offset,
+		Rvalue, addend);
+	
+	return r;
 }
 
 /* Relocate a P16 ELF section.  */

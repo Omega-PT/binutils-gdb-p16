@@ -22,7 +22,15 @@
 			"safe-ctype.h": "c",
 			"ansidecl.h": "c",
 			"bfd.h": "c",
-			"libbfd.h": "c"
+			"libbfd.h": "c",
+			"elf32-cr16.h": "c",
+			"sysdep.h": "c",
+			"elf-bfd.h": "c",
+			"reloc-macros.h": "c",
+			"chrono": "c",
+			"text_encoding": "c",
+			"typeinfo": "c",
+			"p16.h": "c"
 		}
 	}
 }

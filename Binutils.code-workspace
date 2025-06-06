@@ -15,7 +15,14 @@
 			"common.h": "c",
 			"stdio.h": "c",
 			"symcat.h": "c",
-			"libiberty.h": "c"
+			"libiberty.h": "c",
+			"cr16.h": "c",
+			"dwarf2dbg.h": "c",
+			"as.h": "c",
+			"safe-ctype.h": "c",
+			"ansidecl.h": "c",
+			"bfd.h": "c",
+			"libbfd.h": "c"
 		}
 	}
 }

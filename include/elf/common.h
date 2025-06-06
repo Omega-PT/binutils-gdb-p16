@@ -379,6 +379,9 @@
 /* MSP430 magic number.  Written in the absense of everything.  */
 #define EM_MSP430_OLD		0x1059
 
+/* ISEL P16 architecture magic number */
+#define EM_P16       0x1616
+
 /* Morpho MT.   Written in the absense of an ABI.  */
 #define EM_MT			0x2530
 

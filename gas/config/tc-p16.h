@@ -23,4 +23,16 @@
 
 #define TC_P16 1
 
+#define TARGET_BYTES_BIG_ENDIAN 0
+
+#define GLOBAL_OFFSET_TABLE_NAME "_GLOBAL_OFFSET_TABLE_"
+
+#define TARGET_FORMAT "elf32-p16"
+#define TARGET_ARCH   bfd_arch_p16
+
+#define WORKING_DOT_WORD
+#define LOCAL_LABEL_PREFIX '.'
+
+#define md_number_to_chars      number_to_chars_littleendian
+
 #endif /* TC_P16_H */

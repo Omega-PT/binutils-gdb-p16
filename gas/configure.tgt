@@ -88,6 +88,7 @@ case ${cpu} in
   nds32be)		cpu_type=nds32 endian=big ;;
   nds32le)		cpu_type=nds32 endian=little ;;
   or1k* | or1knd*)	cpu_type=or1k endian=big ;;
+  p16*)		cpu_type=p16 endian=little ;;
   pjl*)			cpu_type=pj endian=little ;;
   pj*)			cpu_type=pj endian=big ;;
   powerpc*le*)		cpu_type=ppc endian=little ;;
@@ -354,6 +355,8 @@ case ${generic_target} in
 
   or1k*-*-elf | or1k*-*-rtems*) 	fmt=elf endian=big ;;
   or1k*-*-linux*)			fmt=elf em=linux endian=big ;;
+
+  p16-*-elf*)				fmt=elf ;;
 
   pj*)					fmt=elf ;;
 

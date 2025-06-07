@@ -574,6 +574,8 @@ DESCRIPTION
 .#define bfd_mach_amdgcn_gfx1100 0x041
 .#define bfd_mach_amdgcn_gfx1101 0x046
 .#define bfd_mach_amdgcn_gfx1102 0x047
+.  bfd_arch_p16,
+.#define bfd_mach_p16 1
 .  bfd_arch_last
 .  };
 */

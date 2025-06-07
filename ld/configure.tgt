@@ -681,6 +681,8 @@ or1k-*-elf | or1knd-*-elf | or1k-*-rtems* | or1knd-*-rtems*)
 			;;
 or1k-*-linux* | or1knd-*-linux*)	targ_emul=elf32or1k_linux
 			;;
+p16-*-elf*)		targ_emul=elf32p16
+			;;
 pdp11-*-*)		targ_emul=pdp11
 			targ_extra_ofiles=
 			;;

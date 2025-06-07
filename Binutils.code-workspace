@@ -30,7 +30,8 @@
 			"chrono": "c",
 			"text_encoding": "c",
 			"typeinfo": "c",
-			"p16.h": "c"
+			"p16.h": "c",
+			"limits.h": "c"
 		}
 	}
 }

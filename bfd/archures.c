@@ -679,6 +679,7 @@ extern const bfd_arch_info_type bfd_nds32_arch;
 extern const bfd_arch_info_type bfd_nfp_arch;
 extern const bfd_arch_info_type bfd_ns32k_arch;
 extern const bfd_arch_info_type bfd_or1k_arch;
+extern const bfd_arch_info_type bfd_p16_arch;
 extern const bfd_arch_info_type bfd_pdp11_arch;
 extern const bfd_arch_info_type bfd_pj_arch;
 extern const bfd_arch_info_type bfd_powerpc_archs[];
@@ -767,6 +768,7 @@ static const bfd_arch_info_type * const bfd_archures_list[] =
     &bfd_nfp_arch,
     &bfd_ns32k_arch,
     &bfd_or1k_arch,
+    &bfd_p16_arch,
     &bfd_pdp11_arch,
     &bfd_powerpc_arch,
     &bfd_pru_arch,

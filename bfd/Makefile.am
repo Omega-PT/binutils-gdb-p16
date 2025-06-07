@@ -146,6 +146,7 @@ ALL_MACHINES = \
 	cpu-nfp.lo \
 	cpu-ns32k.lo \
 	cpu-or1k.lo \
+	cpu-p16.lo \
 	cpu-pdp11.lo \
 	cpu-pj.lo \
 	cpu-powerpc.lo \
@@ -229,6 +230,7 @@ ALL_MACHINES_CFILES = \
 	cpu-nfp.c \
 	cpu-ns32k.c \
 	cpu-or1k.c \
+	cpu-p16.c \
 	cpu-pdp11.c \
 	cpu-pj.c \
 	cpu-powerpc.c \
@@ -332,6 +334,7 @@ BFD32_BACKENDS = \
 	elf32-mt.lo \
 	elf32-nds32.lo \
 	elf32-or1k.lo \
+	elf32-p16.lo \
 	elf32-pj.lo \
 	elf32-ppc.lo \
 	elf32-pru.lo \
@@ -466,6 +469,7 @@ BFD32_BACKENDS_CFILES = \
 	elf32-mt.c \
 	elf32-nds32.c \
 	elf32-or1k.c \
+	elf32-p16.c \
 	elf32-pj.c \
 	elf32-ppc.c \
 	elf32-pru.c \

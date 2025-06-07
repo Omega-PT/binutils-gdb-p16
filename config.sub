@@ -1142,6 +1142,9 @@ case $cpu-$vendor in
 	openrisc-*)
 		cpu=or32
 		;;
+	p16-*)
+		cpu=p16
+		;;
 	parisc-*)
 		cpu=hppa
 		basic_os=${basic_os:-linux}

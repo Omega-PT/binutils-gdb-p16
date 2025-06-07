@@ -31,7 +31,8 @@
 			"text_encoding": "c",
 			"typeinfo": "c",
 			"p16.h": "c",
-			"limits.h": "c"
+			"limits.h": "c",
+			"or1k.h": "c"
 		}
 	}
 }

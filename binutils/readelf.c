@@ -144,6 +144,7 @@
 #include "elf/nfp.h"
 #include "elf/nios2.h"
 #include "elf/or1k.h"
+#include "elf/p16.h"
 #include "elf/pj.h"
 #include "elf/ppc.h"
 #include "elf/ppc64.h"
@@ -1262,6 +1263,7 @@ guess_is_rela (unsigned int e_machine)
     case EM_NDS32:
     case EM_NIOS32:
     case EM_OR1K:
+    case EM_P16:
     case EM_PPC64:
     case EM_PPC:
     case EM_TI_PRU:
@@ -2332,6 +2334,10 @@ dump_relocations (Filedata *          filedata,
 	  rtype = elf_cr16_reloc_type (type);
 	  break;
 
+  case EM_P16:
+	  rtype = elf_p16_reloc_type (type);
+	  break;
+
 	case EM_MICROBLAZE:
 	case EM_MICROBLAZE_OLD:
 	  rtype = elf_microblaze_reloc_type (type);
@@ -2396,6 +2402,8 @@ dump_relocations (Filedata *          filedata,
 	  rtype = elf_amdgpu_reloc_type (type);
 	  break;
 	}
+
+  
 
       if (rtype == NULL)
 	printf (_("unrecognized: %-7lx"), (unsigned long) type & 0xffffffff);
@@ -3440,6 +3448,7 @@ get_machine_name (unsigned e_machine)
     case EM_KF32:		return "ChipON KungFu32";
 
       /* Large numbers...  */
+    case EM_P16:                 return "ISEL P16 processor";
     case EM_MT:                 return "Morpho Techologies MT processor";
     case EM_ALPHA:		return "Alpha";
     case EM_WEBASSEMBLY:	return "Web Assembly";

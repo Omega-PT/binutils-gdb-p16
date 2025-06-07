@@ -262,6 +262,7 @@ TARGET_CPU_HFILES = \
 	config/tc-nds32.h \
 	config/tc-ns32k.h \
 	config/tc-or1k.h \
+	config/tc-p16.h \
 	config/tc-pdp11.h \
 	config/tc-pj.h \
 	config/tc-ppc.h \

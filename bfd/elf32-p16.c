@@ -382,10 +382,12 @@ static bfd_byte *elf32_p16_get_relocated_section_contents(
 	 return NULL;
 }
 
-#define TARGET_LITTLE_SYM 		p16_elf32_vec
+/* Definitions for setting P16 target vector.  */
+#define TARGET_LITTLE_SYM		p16_elf32_vec
 #define TARGET_LITTLE_NAME		"elf32-p16"
 
 #define ELF_ARCH				bfd_arch_p16
+#define ELF_TARGET_ID			P16_ELF_DATA
 #define ELF_MACHINE_CODE 		EM_P16
 #define ELF_MAXPAGESIZE  		0x1
 #define elf_symbol_leading_char '_'
@@ -421,3 +423,5 @@ static bfd_byte *elf32_p16_get_relocated_section_contents(
 // #define bfd_elf32_bfd_merge_private_bfd_data
 // #define bfd_elf32_bfd_link_hash_table_create 
 // #define bfd_elf32_bfd_link_hash_table_free 
+
+#include "elf32-target.h"

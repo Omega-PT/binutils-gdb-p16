@@ -61,7 +61,7 @@ const inst p16_instruction[] =
   {"movs",  INST_LEN, 0XB020, 0xF870, ARITH_INS, {}},
 
   {"msr",   INST_LEN, 0xB040, 0xF860, ARITH_INS, {{p_regr, 4}, {regr, 7}}},
-  {"mrs",   INST_LEN, 0xB060, 0xF860, ARITH_INS, {{regr, 0}}, {p_regr, 4}},
+  {"mrs",   INST_LEN, 0xB060, 0xF860, ARITH_INS, {{regr, 0}, {p_regr, 4}}},
 
   {"mov",   INST_LEN, 0x6000, 0xF000, ARITH_INS, {{regr, 0}, {uimm8, 4}}},
   {"movt",  INST_LEN, 0x7000, 0xF000, ARITH_INS, {{regr, 0}, {uimm8, 4}}},

@@ -24,6 +24,7 @@
 #include "libiberty.h"
 #include "elf-bfd.h"
 #include "elf/p16.h"
+#include "elf32-p16.h"
 
 /* Map between the BFD relocation types to P16 ELF relocation types */
 struct p16_reloc_map

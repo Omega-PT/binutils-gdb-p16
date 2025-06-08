@@ -708,7 +708,7 @@ SOURCE_HFILES = \
 	ecoff-bfd.h ecoffswap.h \
 	elf32-arm.h elf32-avr.h elf32-bfin.h elf32-cr16.h elf32-csky.h \
 	elf32-dlx.h elf32-hppa.h elf32-m68hc1x.h elf32-m68k.h \
-	elf32-metag.h elf32-nds32.h elf32-ppc.h \
+	elf32-metag.h elf32-nds32.h elf32-p16.h elf32-ppc.h \
 	elf32-rx.h elf32-score.h elf32-sh-relocs.h elf32-spu.h \
 	elf32-tic6x.h elf32-tilegx.h elf32-tilepro.h elf32-v850.h \
 	elf64-hppa.h elf64-ppc.h elf64-tilegx.h \

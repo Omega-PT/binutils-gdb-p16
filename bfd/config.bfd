@@ -1079,7 +1079,7 @@ case "${targ}" in
     targ_defvec=or1k_elf32_vec
     ;;
 
-  p16-*-elf )
+  p16-*-elf*)
     targ_defvec=p16_elf32_vec
     targ_underscore=yes
     ;;

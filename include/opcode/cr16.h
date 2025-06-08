@@ -306,11 +306,11 @@ typedef struct
   /* The argument data structure for storing args (operands).  */
   argument arg[MAX_OPERANDS];
 /* The following fields are required only by CR16-assembler.  */
-//#ifdef TC_CR16
+#ifdef TC_CR16
   /* Expression used for setting the fixups (if any).  */
   expressionS exp;
   bfd_reloc_code_real_type rtype;
-//#endif /* TC_CR16 */
+#endif /* TC_CR16 */
   /* Instruction size (in bytes).  */
   int size;
 }

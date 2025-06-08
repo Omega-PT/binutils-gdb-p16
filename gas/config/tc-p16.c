@@ -152,6 +152,11 @@ int md_estimate_size_before_relax(fragS * fragp, segT segtype ATTRIBUTE_UNUSED) 
     return 2;
 }
 
+/* Parse an operand that is machine-specific.  */
+void md_operand(expressionS *expressionP ATTRIBUTE_UNUSED) {
+  return;
+}
+
 /* The function that assembles one assembly instruction 
     and outputs its coresponding machine code*/
 

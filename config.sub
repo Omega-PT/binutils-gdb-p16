@@ -1382,6 +1382,7 @@ case $cpu-$vendor in
 			| or1k* \
 			| or32 \
 			| orion \
+			| p16 \
 			| pdp10 \
 			| pdp11 \
 			| picochip \

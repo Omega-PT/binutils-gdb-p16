@@ -38,16 +38,45 @@
 /* Maximum size of a single instruction (in words).  */
 #define INSN_SIZE   1
 
+/* Operand errors.  */
+typedef enum
+  {
+    OP_LEGAL = 0,       /* Legal operand.  */
+    OP_OUT_OF_RANGE,    /* Operand not within permitted range.  */
+  }
+op_err;
+
+/* Instruction mnemonics hash table.  */
+static htab_t p16_inst_hash;
+/* P16 registers hash table.  */
+static htab_t reg_hash;
+/* P16 processor registers hash table.  */
+static htab_t preg_hash;
+/* Current instruction we're assembling. (Instruction table entry)  */
+const inst *current_instruction_template;
+
+
+/* Globals.  */
+
+/* Variable that holds an instruction's encoding (always 2 bytes) */
+short global_output_opcode;
+
+/* A copy of the original instruction (used in error messages).  */
+char global_ins_parse[MAX_INST_LEN];
+
+/* The current processed argument number.  */
+int global_cur_arg_num;
+
 /* Generic assembler global variables which must be defined by all targets.  */
 
 /* Characters which always start a comment.  */
-const char comment_chars[] = "#";
+const char comment_chars[] = ";";
 
 /* Characters which start a comment at the beginning of a line.  */
-const char line_comment_chars[] = "#";
+const char line_comment_chars[] = ";";
 
 /* This array holds machine specific line separator characters.  */
-const char line_separator_chars[] = ";";
+const char line_separator_chars[] = "\n";
 
 /* Chars that can be used to separate mant from exp in floating point nums.  */
 const char EXP_CHARS[] = "eE";
@@ -60,6 +89,31 @@ const char md_shortopts[] = "";
 const struct option md_longopts[] = {{NULL, no_argument, NULL, 0}};
 const size_t md_longopts_size = sizeof(md_longopts);
 
+/* Return the bit size for a given operand.  */
+static int get_opbits(operand_type op) {
+    if (op < MAX_OPRD) {
+        return p16_optab[op].bit_size;
+    }
+    return 0;
+}
+
+/* Return the argument type of a given operand.  */
+static argtype get_optype(operand_type op) {
+    if (op < MAX_OPRD) {
+        return p16_optab[op].arg_type;
+    } else {
+        return nullargs;
+    }
+}
+
+/* Return the flags of a given operand.  */
+static int get_opflags(operand_type op) {
+    if (op < MAX_OPRD) {
+        return p16_optab[op].flags;
+    }
+    return 0;
+}
+
 /* Process machine-dependent command line options.  Called once for
    each option on the command line that the machine-independent part of
    GAS does not understand.  */
@@ -67,10 +121,56 @@ int md_parse_option(int c ATTRIBUTE_UNUSED, const char *arg ATTRIBUTE_UNUSED) {
     return 0;
 }
 
+/* Initializes a hash table with registers and their entries.  */
+static void initialise_reg_hash_table (
+    htab_t *hash_table,
+	const reg_entry *register_table,
+	const unsigned int num_entries
+) {
+  const reg_entry *rreg;
+
+  *hash_table = str_htab_create();
+
+  for (
+    rreg = register_table;
+    rreg < (register_table + num_entries);
+    rreg++
+    ) {
+        if (str_hash_insert (*hash_table, rreg->name, rreg, 0) != NULL) {
+            as_fatal (_("Duplicate register in hash table %s"), rreg->name);
+        }
+    }
+}
+
+
 /* This function is called once, at assembler startup time.  This should
    set up all the tables, etc that the MD part of the assembler needs.  */
 void md_begin(void) {
-    return;
+    int i = 0;
+
+    /* Set up a hash table for the instructions.  */
+    p16_inst_hash = str_htab_create();
+
+    while(p16_instruction[i].mnemonic != NULL) {
+        const char *mnemonic = p16_instruction[i].mnemonic;
+
+        if (str_hash_insert(p16_inst_hash, mnemonic, p16_instruction + i, 0)) {
+            as_fatal(_("Duplicate mnemonic in hash table %s"), mnemonic);
+        }
+
+        /* Only add unique names into the hash table.  */
+        do {
+            ++i;
+        } while (
+            p16_instruction[i].mnemonic != NULL &&
+            streq(p16_instruction[i].mnemonic, mnemonic)
+        );
+
+        /* Initialize reg_hash hash table.  */
+        initialise_reg_hash_table(&reg_hash, p16_regtab, NUMREGS);
+        /* Initialize preg_hash hash table.  */
+        initialise_reg_hash_table(& preg_hash, p16_pregtab, NUMPREGS);
+    }
 }
 
 /* Machine-dependent usage-output.  */
@@ -154,16 +254,329 @@ int md_estimate_size_before_relax(fragS * fragp, segT segtype ATTRIBUTE_UNUSED) 
 
 /* Parse an operand that is machine-specific.  */
 void md_operand(expressionS *expressionP ATTRIBUTE_UNUSED) {
-  return;
+    return;
+}
+
+/* Parse some special types of operands.  */
+static void set_operand(assembling_ins *p16_assembling_ins, char *operand) {
+    parsed_argument *cur_arg = p16_assembling_ins->arg + global_cur_arg_num;
+
+    /* Currently does nothing.  */
+}
+
+/* Parses a string and returns its processor register value
+    (or nullpregister if it isn't a register).  */
+static preg get_pregister(char *preg_name) {
+    const reg_entry *r_entry;
+
+    r_entry = (const reg_entry *)str_hash_find(preg_hash, preg_name);
+
+    if (r_entry != NULL) {
+        return r_entry->value.preg_val;
+    }
+    return nullpregister;
+}
+
+/* Parses a string and returns its register value
+    (or nullregister if it isn't a register).  */
+static reg get_register(char *reg_name) {
+    const reg_entry *r_entry;
+
+    r_entry = (const reg_entry *)str_hash_find(reg_hash, reg_name);
+
+    if (r_entry != NULL) {
+        return r_entry->value.reg_val;
+    }
+    return nullregister;
+}
+
+/* Parses a single operand.  */
+static void parse_single_operand(assembling_ins *p16_assembling_ins, char *operand) {
+    int return_val;
+    parsed_argument *cur_arg = p16_assembling_ins->arg + global_cur_arg_num;
+
+    cur_arg->type = nullargs;
+
+    /* Check if this argument is a general register.  */
+    if ((return_val = get_register(operand)) != nullregister) {
+        cur_arg->type = arg_r;
+        cur_arg->r = return_val;
+        cur_arg->X_op = 0;
+        return;
+    }
+
+    /* Check if this argument is a processor register.  */
+    if ((return_val = get_pregister(operand)) != nullpregister) {
+        cur_arg->type = arg_pr;
+        cur_arg->pr = return_val;
+        cur_arg->X_op = 0;
+        return;
+    }
+
+    /* TODO: support constant values.  */
+
+    /* Parse an operand according to its type.  */
+    set_operand(p16_assembling_ins, operand);
+}
+
+/* Parses the operands, which are saved in p16_assembling_ins.  */
+static void parse_operands(assembling_ins *p16_assembling_ins, char *operands) {
+    char *operandS;             /* Operands string.  */
+    char *operandH, *operandT;  /* Single operand head/tail pointers.  */
+    char *operand[MAX_OPERANDS];/* Separating the operands.  */
+
+    int op_num = 0;             /* Current operand number we are parsing.  */
+    int bracket_flag = 0;       /* Indicates a bracket '(' was found.  */
+    int sq_bracket_flag = 0;    /* Indicates a square bracket '[' was found.  */
+  
+    /* All pointers point to the start of the operands.  */
+    operandS = operandH = operandT = operands;
+
+    while (*operandT != '\0') {
+        /* End of operand reached, separate it and save it.  */
+        if (*operandT == ',' && bracket_flag != 1 && sq_bracket_flag != 1) {
+            *operandT++ = '\0';
+            operand[op_num++] = strdup(operandH);
+            operandH = operandT;
+            continue;
+        }
+    
+        if (*operandT == ' ') {
+            as_bad (_("Illegal operands (whitespace): '%s'"), global_ins_parse);
+        }
+
+        if (*operandT == '(') {
+            bracket_flag = 1;
+        } else if (*operandT == '[') {
+            sq_bracket_flag = 1;
+        }
+
+        if (*operandT == ')') {
+            if (bracket_flag) {
+                bracket_flag = 0;
+            } else {
+                as_fatal (_("Missing matching brackets: '%s'"), global_ins_parse);
+            }
+        } else if (*operandT == ']') {
+            if (sq_bracket_flag) {
+                sq_bracket_flag = 0;
+            } else {
+                as_fatal (_("Missing matching brackets: '%s'"), global_ins_parse);
+            }
+        }  
+
+        operandT++;
+    }
+
+    /* Add the last operand.  */
+    operand[op_num++] = strdup(operandH);
+    p16_assembling_ins->nargs = op_num;
+
+    /* Verify syntax.  */
+    if (bracket_flag || sq_bracket_flag) {
+        as_fatal (_("Missing matching brackets: '%s'"), global_ins_parse);
+    }
+
+    for (op_num = 0; op_num < p16_assembling_ins->nargs; op_num++) {
+        printf("Operand %d: '%s'\n", op_num, operand[op_num]);
+    }
+
+    /* Parse each operand.  */
+    for (op_num = 0; op_num < p16_assembling_ins->nargs; op_num++) {
+        global_cur_arg_num = op_num;
+        parse_single_operand(p16_assembling_ins, operand[op_num]);
+        free(operand[op_num]);
+    }
+}
+
+/* Where the actual instruction parsing begins 
+   p16_assembling_ins -> Data structure of the currently assembling instruction
+   operands -> String that points to the start of the operands.  */
+
+static void parse_instruction(assembling_ins *p16_assembling_ins, char *operands) {
+    /* Currently only calls parse_operands.  */
+    parse_operands(p16_assembling_ins, operands);
+}
+
+/* Retrieve the number of operands for the current assembled instruction.  */
+
+static int get_template_num_of_operands(void) {
+    int i;
+
+    for (i = 0; current_instruction_template->operands[i].op_type && i < MAX_OPERANDS; i++)
+        ;
+    return i;
+}
+
+/* Prints an operand to global_output_opcode.  */
+static void print_operand(int nbits, int shift, parsed_argument *arg) {
+    switch (arg->type) {
+        case arg_r:
+            global_output_opcode |= ((arg->r << shift));
+            break;
+        
+        case arg_ic:
+            unsigned short mask = (1 << nbits) - 1;
+            global_output_opcode |= ((arg->constant && mask) << shift);
+            break;
+        
+        case arg_pr:
+            global_output_opcode |= ((arg->pr << shift));
+            break;
+    }
+}
+
+/* Assembles a single isntruction
+   Operand types and their values are already parsed and set
+   To assemble it, we need a matching template from the isntruction table that:
+   1. Has the same number of operands;
+   2. Has the same operand types;
+   3: The operand size is sufficient for its value.  */
+
+static int assemble_instruction(assembling_ins *p16_assembling_ins, const char *mnemonic) {
+    /* Type of each operand in the current template.  */
+    argtype cur_template_op_type[MAX_OPERANDS];
+    /* Size (in bits) of each operand in the current template.  */
+    unsigned int cur_template_op_size[MAX_OPERANDS];
+    /* Flags of each operand in the current template.  */
+    unsigned int cur_template_op_flags[MAX_OPERANDS];
+    /* Instruction type to match.  */
+    unsigned int ins_type;
+    /* Boolean flag to mark whether a match was found.  */
+    int match = 0;
+    int i;
+    /* Nonzero if an instruction with same number of operands was found.  */
+    int found_same_number_of_operands = 0;
+    /* Nonzero if an instruction with same argument types was found.  */
+    int found_same_argument_types = 0;
+    /* Nonzero if a constant was found within the required range.  */
+    int found_const_within_range  = 0;
+    /* Argument number of an operand with invalid type.  */
+    int invalid_optype = -1;
+    /* Argument number of an operand with invalid constant value.  */
+    int invalid_const = -1;
+    /* Operand error (used for issuing various constant error messages).  */
+    op_err op_error, const_err = OP_LEGAL;
+
+/* Handy define to get the data of the operands of a given instruction.  */
+#define GET_CURRENT_DATA(FUNC, ARRAY) \
+    for (i = 0; i < p16_assembling_ins->nargs; i++) \
+        ARRAY[i] = FUNC (current_instruction_template->operands[i].op_type)
+
+/* Acquires the informations of the operands and stores them in
+cur_type, cur_size and cur_flags.  */
+#define GET_CURRENT_TYPE    GET_CURRENT_DATA (get_optype, cur_template_op_type)
+#define GET_CURRENT_SIZE    GET_CURRENT_DATA (get_opbits, cur_template_op_size)
+#define GET_CURRENT_FLAGS   GET_CURRENT_DATA (get_opflags, cur_template_op_flags)
+
+    /* There are instructions with the same mnemonic, and the variable
+       current_instruction_template only has the first one found, so we need
+       to check if the types match and, if not, advance the template to check
+       again (Since the table has these instructions all next to each other).  */
+    ins_type = P16_INS_TYPE(current_instruction_template->flags);
+
+    while(
+        match != 1                                        // Not matched yet
+        && current_instruction_template->mnemonic != NULL // Not at the end of the table
+        && IS_INSN_MNEMONIC(mnemonic)                     // Still the same mnemonic
+        && IS_INSN_TYPE(ins_type)                         // Still the same type
+    ) {
+        if (get_template_num_of_operands() != p16_assembling_ins->nargs) {
+            goto next_instruction;
+        }
+        found_same_number_of_operands = 1;
+
+        /* Initialize arrays with data of each operand in current template.  */
+        GET_CURRENT_TYPE;
+        GET_CURRENT_SIZE;
+        GET_CURRENT_FLAGS;
+
+        /* Check types.  */
+        for (i = 0; i < p16_assembling_ins->nargs; i++) {
+            if (cur_template_op_type[i] != p16_assembling_ins->arg[i].type) {
+                if (invalid_optype == -1) {
+                    invalid_optype = i + 1;
+                }
+                goto next_instruction;
+            }
+        }
+        found_same_argument_types = 1;
+
+        match = 1;
+        break;
+
+    next_instruction:
+        current_instruction_template++;
+    }
+
+    if (!match) {
+        if (!found_same_number_of_operands) {
+            as_bad(_("Incorrect number of operands"));
+        } else if (!found_same_argument_types) {
+            as_bad(_("Illegal type of operand (arg %d)"), invalid_optype);
+        }
+
+        return 0;
+    } else {
+        /* Match successful, save opcode to global_output_opcode.  */
+        global_output_opcode = 0;
+        global_output_opcode |= current_instruction_template->opcode;
+    }
+
+    for (i = 0; i < p16_assembling_ins->nargs; i++) {
+        global_cur_arg_num = i;
+        print_operand(
+            cur_template_op_size[i],
+            current_instruction_template->operands[i].shift,
+            p16_assembling_ins->arg + i
+        );
+    }
+
+    return 1;
+}
+
+/* Print the instruction. */
+static void print_instruction(assembling_ins *p16_assembling_ins) {
+    char *frag = frag_more(2);
+
+    md_number_to_chars(frag, global_output_opcode, 2);
+}
+
+/* Actually assemble an instruction.  */
+static void p16_assemble(const char *op, char *param) {
+    assembling_ins p16_assembling_ins;
+
+    /* Find the instruction in the instruction table.  */
+    current_instruction_template =(const inst *)str_hash_find(p16_inst_hash, op);
+
+    if (current_instruction_template == NULL) {
+        as_bad(_("Unkown opcode: '%s'"), op);
+        return;
+    }
+
+    printf("Found instruction: %s\n", current_instruction_template->mnemonic);
+
+    parse_instruction(&p16_assembling_ins, param);
+
+    if (!assemble_instruction(&p16_assembling_ins, op)) {
+        return;
+    }
+
+    print_instruction(&p16_assembling_ins);
 }
 
 /* The function that assembles one assembly instruction 
     and outputs its coresponding machine code*/
-
 void md_assemble(char *op) {
-    // Dummy
-    char *frag = frag_more(2);
-    unsigned short word = 0xABAB;
+    char *param;
 
-    md_number_to_chars(frag, word, 2);
+    /* Strips the mnemonic.  */
+    for (param = op; *param != 0 && !ISSPACE (*param); param++);
+    
+    *param++ = '\0';
+
+    printf("op: %s\n", op);
+    printf("param: %s\n", param);
+
+    p16_assemble(op, param);
 }

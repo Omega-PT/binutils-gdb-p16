@@ -61,37 +61,20 @@ reg_type;
 
 /* TODO - List P16 argument types */
 
-/* CR16 argument types :
+/* P16 argument types :
    The argument types correspond to instructions operands
 
    Argument types :
    r - register
-   rp - register pair
-   c - constant
-   i - immediate
-   idxr - index with register
-   idxrp - index with register pair
-   rbase - register base
-   rpbase - register pair base
+   ic - immediate
    pr - processor register.  */
 
 typedef enum
 {
   arg_r,
-  arg_c,
-  arg_cr,
-  arg_crp,
-  arg_ic,
-  arg_icr,
-  arg_idxr,
-  arg_idxrp,
-  arg_rbase,
-  arg_rpbase,
-  arg_rp,
   arg_pr,
-  arg_prp,
-  arg_cc,
-  arg_ra,
+  arg_ic,
+
   /* Not an argument.  */
   nullargs
 }
@@ -138,71 +121,23 @@ operand_type;
 #define CSTBIT_INS        9
 
 /* Maximum value supported for instruction types.  */
-#define CR16_INS_MAX        (1 << 4)
+#define P16_INS_MAX        (1 << 4)
 /* Mask to record an instruction type.  */
-#define CR16_INS_MASK       (CR16_INS_MAX - 1)
+#define P16_INS_MASK       (P16_INS_MAX - 1)
 /* Return instruction type, given instruction's attributes.  */
-#define CR16_INS_TYPE(attr) ((attr) & CR16_INS_MASK)
-
-/* Indicates whether this instruction has a register list as parameter.  */
-#define REG_LIST        CR16_INS_MAX
-
-/* The operands in binary and assembly are placed in reverse order.
-   load - (REVERSE_MATCH)/store - (! REVERSE_MATCH).  */
-#define REVERSE_MATCH  (1 << 5)
-
-/* Printing formats, where the instruction prefix isn't consecutive.  */
-#define FMT_1          (1 << 9)    /* 0xF0F00000 */
-#define FMT_2          (1 << 10)   /* 0xFFF0FF00 */
-#define FMT_3          (1 << 11)   /* 0xFFF00F00 */
-#define FMT_4          (1 << 12)   /* 0xFFF0F000 */
-#define FMT_5          (1 << 13)   /* 0xFFF0FFF0 */
-#define FMT_CR16       (FMT_1 | FMT_2 | FMT_3 | FMT_4 | FMT_5)
-
-/* Indicates whether this instruction can be relaxed.  */
-#define RELAXABLE      (1 << 14)
-
-/* Indicates that instruction uses user registers (and not 
-   general-purpose registers) as operands.  */
-#define USER_REG       (1 << 15)
-
-
-/* Instruction shouldn't allow 'sp' usage.  */
-#define NO_SP          (1 << 17)
-
-/* Instruction shouldn't allow to push a register which is used as a rptr.  */
-#define NO_RPTR        (1 << 18)
+#define P16_INS_TYPE(attr) ((attr) & P16_INS_MASK)
 
 /* Maximum operands per instruction.  */
 #define MAX_OPERANDS     3
 /* Maximum register name length. */
 #define MAX_REGNAME_LEN  10
-
-
-/* Values defined for the flags field of a struct operand_entry.  */
+/* Maximum instruction length. */
+#define MAX_INST_LEN     256
 
 /* Operand must be an unsigned number.  */
 #define OP_UNSIGNED   (1 << 0)
 /* Operand must be a signed number.  */
 #define OP_SIGNED     (1 << 1)
-/* Operand must be a negative number.  */
-#define OP_NEG        (1 << 2)
-/* A special load/stor 4-bit unsigned displacement operand.  */
-#define OP_DEC        (1 << 3)
-/* Operand must be an even number.  */
-#define OP_EVEN       (1 << 4)
-/* Operand is shifted right.  */
-#define OP_SHIFT      (1 << 5)
-/* Operand is shifted right and decremented.  */
-#define OP_SHIFT_DEC  (1 << 6)
-/* Operand has reserved escape sequences.  */
-#define OP_ESC        (1 << 7)
-/* Operand must be a ABS20 number.  */
-#define OP_ABS20      (1 << 8)
-/* Operand must be a ABS24 number.  */
-#define OP_ABS24      (1 << 9)
-/* Operand has reserved escape sequences type 1.  */
-#define OP_ESC1       (1 << 10)
 
 /* Single operand description.  */
 
@@ -224,9 +159,9 @@ typedef struct
   /* Size (in words).  */
   unsigned int size;
   /* 16-bit opcode (Bits with arguments are set to 0)*/
-  unsigned long opcode;
+  unsigned short opcode;
   /* 16-bit opcode mask (Where the opcode is constant) */
-  int opcode_mask;
+  unsigned short opcode_mask;
   /* Attributes.  */
   unsigned int flags;
   /* Operands (always last, so unreferenced operands are initialized).  */
@@ -243,20 +178,12 @@ typedef struct
 {
   /* Register or base register.  */
   reg r;
-  /* Register pair register.  */
-  reg rp;
   /* Index register.  */
   reg i_r;
   /* Processor register.  */
   preg pr;
-  /* Processor register. 32 bit  */
-  preg prp;
   /* Constant/immediate/absolute value.  */
   long constant;
-  /* CC code.  */
-  unsigned int cc;
-  /* Scaled index mode.  */
-  unsigned int scale;
   /* Argument type.  */
   argtype type;
   /* Size of the argument (in bits) required to represent.  */
@@ -264,7 +191,7 @@ typedef struct
   /* The type of the expression.  */
   unsigned char X_op;
 }
-argument;
+parsed_argument;
 
 /* Internal structure to hold the various entities
    corresponding to the current assembling instruction.  */
@@ -273,17 +200,11 @@ typedef struct
   /* Number of arguments.  */
   int nargs;
   /* The argument data structure for storing args (operands).  */
-  argument arg[MAX_OPERANDS];
-/* The following fields are required only by CR16-assembler.  */
-#ifdef TC_CR16
-  /* Expression used for setting the fixups (if any).  */
-  expressionS exp;
-  bfd_reloc_code_real_type rtype;
-#endif /* TC_CR16 */
+  parsed_argument arg[MAX_OPERANDS];
   /* Instruction size (in bytes).  */
   int size;
 }
-ins;
+assembling_ins;
 
 /* Structure to hold information about predefined operands.  */
 
@@ -330,48 +251,29 @@ typedef struct
 }
 reg_entry;
 
-/* CR16 opcode table.  */
-extern const inst cr16_instruction[];
-extern const unsigned int cr16_num_opcodes;
+/* P16 opcode table.  */
+extern const inst p16_instruction[];
+extern const unsigned int p16_num_opcodes;
 #define NUMOPCODES cr16_num_opcodes
 
-/* CR16 operands table.  */
-extern const operand_entry cr16_optab[];
-extern const unsigned int cr16_num_optab;
+/* P16 operands table.  */
+extern const operand_entry p16_optab[];
+extern const unsigned int p16_num_optab;
 
-/* CR16 registers table.  */
-extern const reg_entry cr16_regtab[];
-extern const unsigned int cr16_num_regs;
-#define NUMREGS cr16_num_regs
+/* P16 registers table.  */
+extern const reg_entry p16_regtab[];
+extern const unsigned int p16_num_regs;
+#define NUMREGS p16_num_regs
 
-/* CR16 register pair table.  */
-extern const reg_entry cr16_regptab[];
-extern const unsigned int cr16_num_regps;
-#define NUMREGPS cr16_num_regps
+/* P16 processor registers table.  */
+extern const reg_entry p16_pregtab[];
+extern const unsigned int p16_num_pregs;
+#define NUMPREGS p16_num_pregs
 
-/* CR16 processor registers table.  */
-extern const reg_entry cr16_pregtab[];
-extern const unsigned int cr16_num_pregs;
-#define NUMPREGS cr16_num_pregs
-
-/* CR16 processor registers - 32 bit table.  */
-extern const reg_entry cr16_pregptab[];
-extern const unsigned int cr16_num_pregps;
-#define NUMPREGPS cr16_num_pregps
-
-/* CR16 trap/interrupt table.  */
-extern const trap_entry cr16_traps[];
-extern const unsigned int cr16_num_traps;
-#define NUMTRAPS cr16_num_traps
-
-/* CR16 CC - codes bit table.  */
-extern const char * cr16_b_cond_tab[];
-extern const unsigned int cr16_num_cc;
-#define NUMCC cr16_num_cc;
-
-
-/* Table of instructions with no operands.  */
-extern const char * cr16_no_op_insn[];
+/* P16 trap/interrupt table.  */
+extern const trap_entry p16_traps[];
+extern const unsigned int p16_num_traps;
+#define NUMTRAPS p16_num_traps
 
 /* A macro for representing the instruction "constant" opcode, that is,
    the FIXED part of the instruction. The "constant" opcode is represented
@@ -381,15 +283,15 @@ extern const char * cr16_no_op_insn[];
 
 /* Is the current instruction type is TYPE ?  */
 #define IS_INSN_TYPE(TYPE)              \
-  (CR16_INS_TYPE (instruction->flags) == TYPE)
+  (P16_INS_TYPE (current_instruction_template->flags) == TYPE)
 
 /* Is the current instruction mnemonic is MNEMONIC ?  */
 #define IS_INSN_MNEMONIC(MNEMONIC)    \
-  (strcmp (instruction->mnemonic, MNEMONIC) == 0)
+  (strcmp (current_instruction_template->mnemonic, MNEMONIC) == 0)
 
 /* Does the current instruction has register list ?  */
 #define INST_HAS_REG_LIST              \
-  (instruction->flags & REG_LIST)
+  (current_instruction_template->flags & REG_LIST)
 
 
 /* Utility macros for string comparison.  */
@@ -405,7 +307,7 @@ typedef unsigned long dwordU;
 typedef unsigned short wordU;
 
 /* Prototypes for function in cr16-dis.c.  */
-extern void cr16_make_instruction (void);
-extern int  cr16_match_opcode (void);
+//extern void cr16_make_instruction (void);
+//extern int  cr16_match_opcode (void);
 
 #endif /* _P16_H_ */

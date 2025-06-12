@@ -264,6 +264,19 @@ static void set_operand(assembling_ins *p16_assembling_ins, char *operand) {
     /* Currently does nothing.  */
 }
 
+/* Parses a string and returns its register value
+    (or nullregister if it isn't a register).  */
+static reg get_register(char *reg_name) {
+    const reg_entry *r_entry;
+
+    r_entry = (const reg_entry *)str_hash_find(reg_hash, reg_name);
+
+    if (r_entry != NULL) {
+        return r_entry->value.reg_val;
+    }
+    return nullregister;
+}
+
 /* Parses a string and returns its processor register value
     (or nullpregister if it isn't a register).  */
 static preg get_pregister(char *preg_name) {
@@ -277,17 +290,21 @@ static preg get_pregister(char *preg_name) {
     return nullpregister;
 }
 
-/* Parses a string and returns its register value
-    (or nullregister if it isn't a register).  */
-static reg get_register(char *reg_name) {
-    const reg_entry *r_entry;
+/* Returns 1 for success, 0 for no success, output value returned in the parameters.  */
+static int get_constant_value(char *value_string, long *output_value) {
 
-    r_entry = (const reg_entry *)str_hash_find(reg_hash, reg_name);
-
-    if (r_entry != NULL) {
-        return r_entry->value.reg_val;
+    if (*value_string != '#') {
+        return 0;
     }
-    return nullregister;
+
+    char *value_start = value_string + 1;
+
+    long result = strtol(value_start, NULL, 0);
+    *output_value = result;
+
+    printf("Const result is %d\n", result);
+
+    return 1;
 }
 
 /* Parses a single operand.  */
@@ -309,6 +326,16 @@ static void parse_single_operand(assembling_ins *p16_assembling_ins, char *opera
     if ((return_val = get_pregister(operand)) != nullpregister) {
         cur_arg->type = arg_pr;
         cur_arg->pr = return_val;
+        cur_arg->X_op = 0;
+        return;
+    }
+
+    /* Check if this argument is a constant value (preceded by a '#' character).  */
+    long value = 0;
+    long result = 0;
+    if ((result = get_constant_value(operand, &value)) == 1) {
+        cur_arg->type = arg_ic;
+        cur_arg->constant = value;
         cur_arg->X_op = 0;
         return;
     }
@@ -416,8 +443,9 @@ static void print_operand(int nbits, int shift, parsed_argument *arg) {
             break;
         
         case arg_ic:
-            unsigned short mask = (1 << nbits) - 1;
-            global_output_opcode |= ((arg->constant && mask) << shift);
+            unsigned long mask = (1 << nbits) - 1;
+            unsigned long value1 = (arg->constant & mask);
+            global_output_opcode |= ((arg->constant & mask) << shift);
             break;
         
         case arg_pr:

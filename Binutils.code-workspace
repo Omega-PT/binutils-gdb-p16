@@ -34,7 +34,8 @@
 			"limits.h": "c",
 			"or1k.h": "c",
 			"bfdlink.h": "c",
-			"elf32-p16.h": "c"
+			"elf32-p16.h": "c",
+			"functional": "c"
 		}
 	}
 }

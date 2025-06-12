@@ -313,7 +313,7 @@ static void parse_single_operand(assembling_ins *p16_assembling_ins, char *opera
         return;
     }
 
-    /* TODO: support constant values.  */
+    /* TODO: support other values.  */
 
     /* Parse an operand according to its type.  */
     set_operand(p16_assembling_ins, operand);
@@ -547,7 +547,7 @@ static void p16_assemble(const char *op, char *param) {
     assembling_ins p16_assembling_ins;
 
     /* Find the instruction in the instruction table.  */
-    current_instruction_template =(const inst *)str_hash_find(p16_inst_hash, op);
+    current_instruction_template = (const inst *)str_hash_find(p16_inst_hash, op);
 
     if (current_instruction_template == NULL) {
         as_bad(_("Unkown opcode: '%s'"), op);

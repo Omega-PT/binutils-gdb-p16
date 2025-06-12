@@ -503,6 +503,24 @@ cur_type, cur_size and cur_flags.  */
        again (Since the table has these instructions all next to each other).  */
     ins_type = P16_INS_TYPE(current_instruction_template->flags);
 
+    /* MOVS instruction special check (operands will always be 'pc,lr').  
+       Template in instruction table has no operands, but we have read 2.  
+       Don't go into the 'while' loop to find a matching one.  */
+    if (streq("movs", current_instruction_template->mnemonic)) {
+        if (
+            p16_assembling_ins->nargs == 2 
+            && p16_assembling_ins->arg[0].type == arg_r && p16_assembling_ins->arg[0].r == pc
+            && p16_assembling_ins->arg[1].type == arg_r && p16_assembling_ins->arg[1].r == lr
+        ) {
+            /* Set match to 1 and don't let it print its operands.  */
+            match = 1;
+            p16_assembling_ins->nargs = 0;
+        } else {
+            as_bad(_("Invalid MOVS operands (should be movs pc,lr)"));
+            return 0;
+        }
+    }
+
     while(
         match != 1                                        // Not matched yet
         && current_instruction_template->mnemonic != NULL // Not at the end of the table

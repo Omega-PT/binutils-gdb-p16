@@ -283,6 +283,9 @@ static void process_labels_and_constants(char *string, assembling_ins *p16_assem
                 cur_arg->X_op = O_constant;
                 cur_arg->constant = p16_assembling_ins->exp.X_add_number;
                 break;
+            
+            default:
+                break;
     }
 
     input_line_pointer = input_line_pointer_backup;

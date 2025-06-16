@@ -35,7 +35,8 @@
 			"or1k.h": "c",
 			"bfdlink.h": "c",
 			"elf32-p16.h": "c",
-			"functional": "c"
+			"functional": "c",
+			"expr.h": "c"
 		}
 	}
 }

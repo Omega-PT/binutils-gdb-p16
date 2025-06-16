@@ -202,9 +202,11 @@ typedef struct
   /* The argument data structure for storing args (operands).  */
   parsed_argument arg[MAX_OPERANDS];
 
+#ifdef TC_P16
   expressionS exp;
   bfd_reloc_code_real_type rtype;
-  
+#endif
+
   /* Instruction size (in bytes).  */
   int size;
 }

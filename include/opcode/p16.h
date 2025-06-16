@@ -201,6 +201,10 @@ typedef struct
   int nargs;
   /* The argument data structure for storing args (operands).  */
   parsed_argument arg[MAX_OPERANDS];
+
+  expressionS exp;
+  bfd_reloc_code_real_type rtype;
+  
   /* Instruction size (in bytes).  */
   int size;
 }

@@ -257,11 +257,53 @@ void md_operand(expressionS *expressionP ATTRIBUTE_UNUSED) {
     return;
 }
 
-/* Parse some special types of operands.  */
-static void set_operand(assembling_ins *p16_assembling_ins, char *operand) {
+/* Process constant values and labels.  */
+static void process_labels_and_constants(char *string, assembling_ins *p16_assembling_ins) {
     parsed_argument *cur_arg = p16_assembling_ins->arg + global_cur_arg_num;
 
-    /* Currently does nothing.  */
+    /* Save the input_line_pointer so we can change it to our string, so
+       we can parse it as an expression (Then revert the pointer again).  */
+    char *input_line_pointer_backup = input_line_pointer;
+    input_line_pointer = string;
+
+    expression(&p16_assembling_ins->exp);
+
+    switch (p16_assembling_ins->exp.X_op) {
+        case O_big:
+        case O_absent:
+            /* A missing or bad expression becomes 0 and throws a warning.  */
+            as_bad(_("Missing or invalid expression '%s' taken as 0"), string);
+            p16_assembling_ins->exp.X_op = O_constant;
+            p16_assembling_ins->exp.X_add_number = 0;
+            p16_assembling_ins->exp.X_add_symbol = NULL;
+            p16_assembling_ins->exp.X_op_symbol = NULL;
+            /* Fall through to the constant case.  */
+        
+            case O_constant:
+                cur_arg->X_op = O_constant;
+                cur_arg->constant = p16_assembling_ins->exp.X_add_number;
+                break;
+    }
+
+    input_line_pointer = input_line_pointer_backup;
+    return;
+}
+
+/* Parse some special types of operands.  */
+static void set_operand(assembling_ins *p16_assembling_ins, char *operand) {
+    char *operandS; /* Pointer to start of sub-operand.  */
+    char *operandE; /* Pointer to end of sub-operand.  */
+    
+    parsed_argument *cur_arg = p16_assembling_ins->arg + global_cur_arg_num;
+
+    /* Initialize pointers.  */
+    operandS = operandE = operand;
+
+    switch (cur_arg->type) {
+        case arg_ic: /* Constant value, #0xFF, #123, etc...  */
+            operandS++;
+            process_labels_and_constants(operandS, p16_assembling_ins);
+    }
 }
 
 /* Parses a string and returns its register value
@@ -340,7 +382,15 @@ static void parse_single_operand(assembling_ins *p16_assembling_ins, char *opera
         return;
     }
 
-    /* TODO: support other values.  */
+    /* TODO: support all values.  */
+
+    switch (operand[0]) {
+        case '#':
+            cur_arg->type = arg_ic;
+            break;
+    }
+
+    cur_arg->constant = 0;
 
     /* Parse an operand according to its type.  */
     set_operand(p16_assembling_ins, operand);

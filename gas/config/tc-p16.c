@@ -258,7 +258,7 @@ void md_operand(expressionS *expressionP ATTRIBUTE_UNUSED) {
 }
 
 /* Process constant values and labels.  */
-static void process_labels_and_constants(char *string, assembling_ins *p16_assembling_ins) {
+static int process_labels_and_constants(char *string, assembling_ins *p16_assembling_ins) {
     parsed_argument *cur_arg = p16_assembling_ins->arg + global_cur_arg_num;
 
     /* Save the input_line_pointer so we can change it to our string, so
@@ -267,6 +267,15 @@ static void process_labels_and_constants(char *string, assembling_ins *p16_assem
     input_line_pointer = string;
 
     expression(&p16_assembling_ins->exp);
+
+    /* Check for leftover garbage data.  */
+    if (*input_line_pointer != '\0') {
+        /* 'expression' function didn't use all of the operand string, 
+           so there's some leftover garbage data it didn't parse.  */
+        input_line_pointer = input_line_pointer_backup;
+        as_bad(_("Garbage following expression '%s'"), string);
+        return 0;
+    }
 
     switch (p16_assembling_ins->exp.X_op) {
         case O_big:
@@ -289,11 +298,11 @@ static void process_labels_and_constants(char *string, assembling_ins *p16_assem
     }
 
     input_line_pointer = input_line_pointer_backup;
-    return;
+    return 1;
 }
 
 /* Parse some special types of operands.  */
-static void set_operand(assembling_ins *p16_assembling_ins, char *operand) {
+static int set_operand(assembling_ins *p16_assembling_ins, char *operand) {
     char *operandS; /* Pointer to start of sub-operand.  */
     char *operandE; /* Pointer to end of sub-operand.  */
     
@@ -305,8 +314,13 @@ static void set_operand(assembling_ins *p16_assembling_ins, char *operand) {
     switch (cur_arg->type) {
         case arg_ic: /* Constant value, #0xFF, #123, etc...  */
             operandS++;
-            process_labels_and_constants(operandS, p16_assembling_ins);
+            if (!process_labels_and_constants(operandS, p16_assembling_ins)) {
+                return 0;
+            }
+            printf("Processed constant: %d\n", cur_arg->constant);
     }
+
+    return 1;
 }
 
 /* Parses a string and returns its register value
@@ -335,25 +349,8 @@ static preg get_pregister(char *preg_name) {
     return nullpregister;
 }
 
-/* Returns 1 for success, 0 for no success, output value returned in the parameters.  */
-static int get_constant_value(char *value_string, long *output_value) {
-
-    if (*value_string != '#') {
-        return 0;
-    }
-
-    char *value_start = value_string + 1;
-
-    long result = strtol(value_start, NULL, 0);
-    *output_value = result;
-
-    printf("Const result is %d\n", result);
-
-    return 1;
-}
-
 /* Parses a single operand.  */
-static void parse_single_operand(assembling_ins *p16_assembling_ins, char *operand) {
+static int parse_single_operand(assembling_ins *p16_assembling_ins, char *operand) {
     int return_val;
     parsed_argument *cur_arg = p16_assembling_ins->arg + global_cur_arg_num;
 
@@ -364,7 +361,7 @@ static void parse_single_operand(assembling_ins *p16_assembling_ins, char *opera
         cur_arg->type = arg_r;
         cur_arg->r = return_val;
         cur_arg->X_op = 0;
-        return;
+        return 1;
     }
 
     /* Check if this argument is a processor register.  */
@@ -372,21 +369,10 @@ static void parse_single_operand(assembling_ins *p16_assembling_ins, char *opera
         cur_arg->type = arg_pr;
         cur_arg->pr = return_val;
         cur_arg->X_op = 0;
-        return;
+        return 1;
     }
 
     /* Check if this argument is a constant value (preceded by a '#' character).  */
-    long value = 0;
-    long result = 0;
-    if ((result = get_constant_value(operand, &value)) == 1) {
-        cur_arg->type = arg_ic;
-        cur_arg->constant = value;
-        cur_arg->X_op = 0;
-        return;
-    }
-
-    /* TODO: support all values.  */
-
     switch (operand[0]) {
         case '#':
             cur_arg->type = arg_ic;
@@ -396,11 +382,15 @@ static void parse_single_operand(assembling_ins *p16_assembling_ins, char *opera
     cur_arg->constant = 0;
 
     /* Parse an operand according to its type.  */
-    set_operand(p16_assembling_ins, operand);
+    if (!set_operand(p16_assembling_ins, operand)) {
+        return 0;
+    }
+
+    return 1;
 }
 
 /* Parses the operands, which are saved in p16_assembling_ins.  */
-static void parse_operands(assembling_ins *p16_assembling_ins, char *operands) {
+static int parse_operands(assembling_ins *p16_assembling_ins, char *operands) {
     char *operandS;             /* Operands string.  */
     char *operandH, *operandT;  /* Single operand head/tail pointers.  */
     char *operand[MAX_OPERANDS];/* Separating the operands.  */
@@ -457,25 +447,67 @@ static void parse_operands(assembling_ins *p16_assembling_ins, char *operands) {
         as_fatal (_("Missing matching brackets: '%s'"), global_ins_parse);
     }
 
-    for (op_num = 0; op_num < p16_assembling_ins->nargs; op_num++) {
-        printf("Operand %d: '%s'\n", op_num, operand[op_num]);
+    /* Parse operands with square++ brackets: 
+       Divides [r0,r1] into argument r0 and argument r1.  */
+    char *bracket_arg = operand[op_num - 1];
+
+    if (bracket_arg[0] == '[') {
+        char *comma_place = strchr(bracket_arg, ',');
+        char *last_bracket_place = strrchr(bracket_arg, ']');
+
+        if (comma_place == NULL) {
+            as_fatal (_("Register indexing needs 2 arguments: '%s'"), bracket_arg);
+        }
+
+        /* Set string terminators to be able to dupe the strings.  */ 
+        *comma_place = '\0';
+        *last_bracket_place = '\0';
+
+        char *first_arg = bracket_arg + 1;
+        char *second_arg = comma_place + 1;
+
+        /* Set the operands again (overwriting the whole [r0,r1] argument).  */
+        operand[op_num - 1] = strdup(first_arg);
+        operand[op_num] = strdup(second_arg);
+
+        /* Went from 2 arguments to 3, also update the assembling instruction nargs  */
+        op_num++;
+        p16_assembling_ins->nargs = op_num;
+
+        free(bracket_arg);
     }
 
-    /* Parse each operand.  */
-    for (op_num = 0; op_num < p16_assembling_ins->nargs; op_num++) {
-        global_cur_arg_num = op_num;
-        parse_single_operand(p16_assembling_ins, operand[op_num]);
-        free(operand[op_num]);
+    for (int i = 0; i < op_num; i++) {
+        printf("Operand %d: '%s'\n", i, operand[i]);
     }
+    
+    /* Parse each operand.  */
+    for (int i = 0; i < op_num; i++) {
+        global_cur_arg_num = i;
+        if (!parse_single_operand(p16_assembling_ins, operand[i])) {
+            return 0;
+        }
+        free(operand[i]);
+    }
+
+    for (int i = 0; i < p16_assembling_ins->nargs; i++) {
+        printf("Arg %d, Type: %d\n", i, p16_assembling_ins->arg[i].type);
+    }
+
+    return 1;
 }
 
 /* Where the actual instruction parsing begins 
    p16_assembling_ins -> Data structure of the currently assembling instruction
    operands -> String that points to the start of the operands.  */
 
-static void parse_instruction(assembling_ins *p16_assembling_ins, char *operands) {
+static int parse_instruction(assembling_ins *p16_assembling_ins, char *operands) {
     /* Currently only calls parse_operands.  */
-    parse_operands(p16_assembling_ins, operands);
+    if (!parse_operands(p16_assembling_ins, operands)) {
+        return 0;
+    }
+    
+    return 1;
 }
 
 /* Retrieve the number of operands for the current assembled instruction.  */
@@ -642,7 +674,7 @@ static void print_instruction(assembling_ins *p16_assembling_ins) {
 }
 
 /* Actually assemble an instruction.  */
-static void p16_assemble(const char *op, char *param) {
+static int p16_assemble(const char *op, char *param) {
     assembling_ins p16_assembling_ins;
 
     /* Find the instruction in the instruction table.  */
@@ -650,23 +682,28 @@ static void p16_assemble(const char *op, char *param) {
 
     if (current_instruction_template == NULL) {
         as_bad(_("Unkown opcode: '%s'"), op);
-        return;
+        return 0;
     }
 
     printf("Found instruction: %s\n", current_instruction_template->mnemonic);
 
-    parse_instruction(&p16_assembling_ins, param);
+    if (!parse_instruction(&p16_assembling_ins, param)) {
+        return 0;
+    }
 
     if (!assemble_instruction(&p16_assembling_ins, op)) {
-        return;
+        return 0;
     }
 
     print_instruction(&p16_assembling_ins);
+
+    return 1;
 }
 
 /* The function that assembles one assembly instruction 
     and outputs its coresponding machine code*/
 void md_assemble(char *op) {
+    char *debug_string = strdup(op);
     char *param;
 
     /* Strips the mnemonic.  */
@@ -677,5 +714,9 @@ void md_assemble(char *op) {
     printf("op: %s\n", op);
     printf("param: %s\n", param);
 
-    p16_assemble(op, param);
+    if(!p16_assemble(op, param)) {
+        return;
+    }
+
+    printf("Successful: %s\n", debug_string);
 }

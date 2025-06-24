@@ -178,8 +178,6 @@ typedef struct
 {
   /* Register or base register.  */
   reg r;
-  /* Index register.  */
-  reg i_r;
   /* Processor register.  */
   preg pr;
   /* Constant/immediate/absolute value.  */

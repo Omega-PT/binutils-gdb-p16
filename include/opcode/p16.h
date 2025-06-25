@@ -89,10 +89,9 @@ typedef enum
   /* N-bit signed immediate, only used for branches. */
   imm10,
   /* N-bit unsigned immediate. */
-  uimm3, uimm4, uimm7, uimm8,
-
-  /* TODO - Add register-relative operand types. */
-
+  uimm3, uimm4, uimm8,
+  /* Even unsigned immediate (least significant bit will be discarded).  */
+  uimm4_even, uimm7_even,
   /* Register (r0 <-> r15).  */
   regr, 
   /* Low register (r0 <-> r7).  */
@@ -138,6 +137,8 @@ operand_type;
 #define OP_UNSIGNED   (1 << 0)
 /* Operand must be a signed number.  */
 #define OP_SIGNED     (1 << 1)
+/* Operand must be an even number.  */
+#define OP_EVEN       (1 << 2)
 
 /* Single operand description.  */
 

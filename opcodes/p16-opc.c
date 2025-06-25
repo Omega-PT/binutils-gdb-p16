@@ -50,12 +50,12 @@ const inst p16_instruction[] =
   {"bzs",   INST_LEN, 0x4000, 0xFC00, BRANCH_INS, {{imm10, 0}}},
   {"beq",   INST_LEN, 0x4000, 0xFC00, BRANCH_INS, {{imm10, 0}}},
 
-  {"cmp",   INST_LEN, 0xB800, 0xF800, ARITH_BYTE_INS, {{low_regr, 4}, {regr, 7 }}},
+  {"cmp",   INST_LEN, 0xB800, 0xF800, ARITH_BYTE_INS, {{low_regr, 4}, {regr, 7}}},
 
   {"eor",   INST_LEN, 0xD000, 0xF800, ARITH_BYTE_INS, {{regr, 0}, {low_regr, 4}, {regr, 7}}},
 
-  {"ldr",   INST_LEN, 0x0C00, 0xFC00, LD_STOR_INS, {{regr, 0}, {uimm7, 4}}},
-  {"ldr",   INST_LEN, 0x0000, 0xFC00, LD_STOR_INS, {{regr, 0}, {low_regr, 4}, {uimm4, 7}}},
+  {"ldr",   INST_LEN, 0x0C00, 0xFC00, LD_STOR_INS, {{regr, 0}, {uimm7_even, 4}}},
+  {"ldr",   INST_LEN, 0x0000, 0xFC00, LD_STOR_INS, {{regr, 0}, {low_regr, 4}, {uimm4_even, 7}}},
   {"ldr",   INST_LEN, 0x1000, 0xF800, LD_STOR_INS, {{regr, 0}, {low_regr, 4}, {regr, 7}}},
 
   {"ldrb",  INST_LEN, 0x0800, 0xFC00, LD_STOR_INS, {{regr, 0}, {low_regr, 4}, {uimm3, 7}}},
@@ -89,7 +89,7 @@ const inst p16_instruction[] =
 
   {"sbc",   INST_LEN, 0x9800, 0xF800, ARITH_INS, {{regr, 0}, {low_regr, 4}, {regr, 7}}},
 
-  {"str",   INST_LEN, 0x2000, 0xFC00, LD_STOR_INS, {{regr, 0}, {low_regr, 4}, {uimm4, 7}}},
+  {"str",   INST_LEN, 0x2000, 0xFC00, LD_STOR_INS, {{regr, 0}, {low_regr, 4}, {uimm4_even, 7}}},
   {"str",   INST_LEN, 0x3000, 0xF800, LD_STOR_INS, {{regr, 0}, {low_regr, 4}, {regr, 7}}},
 
   {"strb",  INST_LEN, 0x2800, 0xFC00, LD_STOR_INS, {{regr, 0}, {low_regr, 4}, {uimm3, 7}}},
@@ -140,8 +140,9 @@ const operand_entry p16_optab[] = {
     {10,   arg_ic,       OP_SIGNED},                /* imm10 */
     {3,    arg_ic,       OP_UNSIGNED},              /* uimm3 */
     {4,    arg_ic,       OP_UNSIGNED},              /* uimm4 */
-    {7,    arg_ic,       OP_UNSIGNED},              /* uimm7 */
     {8,    arg_ic,       OP_UNSIGNED},              /* uimm8 */
+    {3,    arg_ic,       OP_UNSIGNED | OP_EVEN},    /* uimm4_even */
+    {6,    arg_ic,       OP_UNSIGNED | OP_EVEN},    /* uimm7_even */
     {4,    arg_r,        0},                        /* register rd/rm (r0-r15) */
     {3,    arg_r,        0},                        /* register rn (r0-r7) */
     {1,    arg_pr,       0},                        /* processor register (cpsr or spsr) */

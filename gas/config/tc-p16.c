@@ -76,7 +76,7 @@ const char comment_chars[] = ";";
 const char line_comment_chars[] = ";";
 
 /* This array holds machine specific line separator characters.  */
-const char line_separator_chars[] = "\n";
+const char line_separator_chars[] = "";
 
 /* Chars that can be used to separate mant from exp in floating point nums.  */
 const char EXP_CHARS[] = "eE";
@@ -652,6 +652,20 @@ cur_type, cur_size and cur_flags.  */
         /* Match successful, save opcode to global_output_opcode.  */
         global_output_opcode = 0;
         global_output_opcode |= current_instruction_template->opcode;
+    }
+
+    /* Check for even immediates, where we need to discard the least significant bit.  */
+    for (i = 0; i < p16_assembling_ins->nargs; i++) {
+        if(cur_template_op_flags[i] & OP_EVEN) {
+            parsed_argument *arg = &p16_assembling_ins->arg[i];
+
+            /* Warn if it's not even, since the last bit will be discarded.  */
+            if (arg->constant % 2 != 0) {
+                as_warn(_("Immediate must be even value: %d"), arg->constant);
+            }
+
+            arg->constant >>= 1;
+        }
     }
 
     for (i = 0; i < p16_assembling_ins->nargs; i++) {

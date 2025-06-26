@@ -36,7 +36,7 @@ ENTRY(${ENTRY})
 MEMORY
 {
 	rom	    : ORIGIN = 0x0000,	    LENGTH = 3M
-	ram	    : ORIGIN = 4M,	    LENGTH = 10M
+	ram	    : ORIGIN = 0x0000,	    LENGTH = 10M
 }
 
 EOF
@@ -65,21 +65,14 @@ SECTIONS
     __TEXT_START = .;
     *(.text) *(.text.*) *(.gnu.linkonce.t.*)
     __TEXT_END = .;
-  }${RELOCATING+ > rom}
-
-  .rdata :
-  {
-    __RDATA_START = .;
-    *(.rdata_4) *(.rdata_2) *(.rdata_1) *(.rdata.*) *(.gnu.linkonce.r.*) *(.rodata*)
-    __RDATA_END = .;
-  }${RELOCATING+ > rom}
+  }${RELOCATING+ > ram}
 
   .data :
   {
     __DATA_START = .;
     *(.data_4) *(.data_2) *(.data_1) *(.data) *(.data.*) *(.gnu.linkonce.d.*)
     __DATA_END = .;
-  }${RELOCATING+ > ram AT > rom}
+  }${RELOCATING+ > ram}
 
   .bss (NOLOAD) :
   {

@@ -136,16 +136,16 @@ const unsigned int p16_num_pregs =  ARRAY_SIZE (p16_pregtab);
 /* Order needs to be the same as the operand_type enum.  */
 const operand_entry p16_optab[] = {
     /* Index 0 is dummy, so we can count the instruction's operands.  */
-    {0,    nullargs,     0},                        /* dummy */
-    {10,   arg_ic,       OP_SIGNED},                /* imm10 */
-    {3,    arg_ic,       OP_UNSIGNED},              /* uimm3 */
-    {4,    arg_ic,       OP_UNSIGNED},              /* uimm4 */
-    {8,    arg_ic,       OP_UNSIGNED},              /* uimm8 */
-    {3,    arg_ic,       OP_UNSIGNED | OP_EVEN},    /* uimm4_even */
-    {6,    arg_ic,       OP_UNSIGNED | OP_EVEN},    /* uimm7_even */
-    {4,    arg_r,        0},                        /* register rd/rm (r0-r15) */
-    {3,    arg_r,        0},                        /* register rn (r0-r7) */
-    {1,    arg_pr,       0},                        /* processor register (cpsr or spsr) */
+    {0,    nullargs,    0},                        /* dummy */
+    {10,   arg_c,       OP_SIGNED},                /* imm11_even */
+    {3,    arg_ic,      OP_UNSIGNED},              /* uimm3 */
+    {4,    arg_ic,      OP_UNSIGNED},              /* uimm4 */
+    {8,    arg_ic,      OP_UNSIGNED},              /* uimm8 */
+    {3,    arg_ic,      OP_UNSIGNED | OP_EVEN},    /* uimm4_even */
+    {6,    arg_c,       OP_UNSIGNED | OP_EVEN},    /* uimm7_even */
+    {4,    arg_r,       0},                        /* register rd/rm (r0-r15) */
+    {3,    arg_r,       0},                        /* register rn (r0-r7) */
+    {1,    arg_pr,      0},                        /* processor register (cpsr or spsr) */
 };
 const unsigned int p16_num_optab = ARRAY_SIZE (p16_optab);
 

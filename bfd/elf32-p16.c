@@ -37,7 +37,11 @@ struct p16_reloc_map
 static const struct p16_reloc_map p16_reloc_map[R_P16_MAX] =
 {
 	{BFD_RELOC_NONE,			R_P16_NONE},
-	{BFD_RELOC_P16_IMM7_EVEN,	R_P16_IMM7_EVEN},
+	{BFD_RELOC_P16_UIMM3,		R_P16_UIMM3},
+	{BFD_RELOC_P16_UIMM4,		R_P16_UIMM4},
+	{BFD_RELOC_P16_UIMM4_EVEN,	R_P16_UIMM4_EVEN},
+	{BFD_RELOC_P16_UIMM7_EVEN,	R_P16_UIMM7_EVEN},
+	{BFD_RELOC_P16_UIMM8,		R_P16_UIMM8},
 	{BFD_RELOC_P16_IMM11_EVEN,	R_P16_IMM11_EVEN},
 };
 
@@ -59,7 +63,52 @@ static reloc_howto_type p16_elf_howto_table[] =
 		false				/* pcrel_offset */
 	),
 	HOWTO (
-		R_P16_IMM7_EVEN,	/* type */
+		R_P16_UIMM3,		/* type */
+		0,					/* rightshift */
+		1,					/* size */
+		3,					/* bitsize */
+		false,				/* pc_relative */
+		7,					/* bitpos */
+		complain_overflow_bitfield,	/* complain_on_overflow */
+		bfd_elf_generic_reloc,		/* special_function */
+		"R_P16_UIMM3",		/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
+		0x0380,				/* dst_mask */
+		false				/* pcrel_offset */
+	),
+	HOWTO (
+		R_P16_UIMM4,		/* type */
+		0,					/* rightshift */
+		1,					/* size */
+		4,					/* bitsize */
+		false,				/* pc_relative */
+		7,					/* bitpos */
+		complain_overflow_bitfield,	/* complain_on_overflow */
+		bfd_elf_generic_reloc,		/* special_function */
+		"R_P16_UIMM4",		/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
+		0x0780,				/* dst_mask */
+		false				/* pcrel_offset */
+	),
+	HOWTO (
+		R_P16_UIMM4_EVEN,	/* type */
+		1,					/* rightshift */
+		1,					/* size */
+		3,					/* bitsize */
+		false,				/* pc_relative */
+		7,					/* bitpos */
+		complain_overflow_bitfield,	/* complain_on_overflow */
+		bfd_elf_generic_reloc,		/* special_function */
+		"R_P16_UIMM4_EVEN",	/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
+		0x0380,				/* dst_mask */
+		false				/* pcrel_offset */
+	),
+	HOWTO (
+		R_P16_UIMM7_EVEN,	/* type */
 		1,					/* rightshift */
 		1,					/* size */
 		6,					/* bitsize */
@@ -67,11 +116,26 @@ static reloc_howto_type p16_elf_howto_table[] =
 		4,					/* bitpos */
 		complain_overflow_bitfield,	/* complain_on_overflow */
 		bfd_elf_generic_reloc,		/* special_function */
-		"R_P16_IMM7_EVEN",	/* name */
+		"R_P16_UIMM7_EVEN",	/* name */
 		false,				/* partial_inplace */
 		0,					/* src_mask */
 		0x7F,				/* dst_mask */
 		true				/* pcrel_offset */
+	),
+	HOWTO (
+		R_P16_UIMM8,		/* type */
+		0,					/* rightshift */
+		1,					/* size */
+		8,					/* bitsize */
+		false,				/* pc_relative */
+		4,					/* bitpos */
+		complain_overflow_bitfield,	/* complain_on_overflow */
+		bfd_elf_generic_reloc,		/* special_function */
+		"R_P16_UIMM8",		/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
+		0x0FF0,				/* dst_mask */
+		false				/* pcrel_offset */
 	),
 	HOWTO (
 		R_P16_IMM11_EVEN,	/* type */

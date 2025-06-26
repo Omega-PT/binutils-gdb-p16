@@ -318,6 +318,32 @@ static int process_labels_and_constants(char *string, assembling_ins *p16_assemb
             if (cur_arg->type == arg_c) {
                 if (IS_INSN_TYPE(BRANCH_INS)) {
                     p16_assembling_ins->rtype = BFD_RELOC_P16_IMM11_EVEN;
+                    break;
+                }
+
+                if (IS_INSN_TYPE(ARITH_INS)) {
+                    if (IS_INSN_MNEMONIC("mov") || IS_INSN_MNEMONIC("movt")) {
+                        p16_assembling_ins->rtype = BFD_RELOC_P16_UIMM8;
+                    } else {
+                        p16_assembling_ins->rtype = BFD_RELOC_P16_UIMM4;
+                    }
+                    break;
+                }
+
+                if (IS_INSN_TYPE(SHIFT_INS)) {
+                    p16_assembling_ins->rtype = BFD_RELOC_P16_UIMM4;
+                    break;
+                }
+
+                if (IS_INSN_TYPE(LD_STOR_INS)) {
+                    if (IS_INSN_MNEMONIC("ldrb") || IS_INSN_MNEMONIC("strb")) {
+                        p16_assembling_ins->rtype = BFD_RELOC_P16_UIMM3;
+                        break;
+                    }
+                    if (IS_INSN_MNEMONIC("ldr") || IS_INSN_MNEMONIC("str")) {
+                        p16_assembling_ins->rtype = BFD_RELOC_P16_UIMM4_EVEN;
+                        break;
+                    }
                 }
             }
 

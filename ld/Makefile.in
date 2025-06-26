@@ -768,6 +768,7 @@ ALL_EMULATION_SOURCES = \
 	eelf32mt.c \
 	eelf32or1k.c \
 	eelf32or1k_linux.c \
+	eelf32p16.c \
 	eelf32ppc.c \
 	eelf32ppc_fbsd.c \
 	eelf32ppchaiku.c \
@@ -1421,6 +1422,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32mt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32or1k.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32or1k_linux.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32p16.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32ppc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32ppc_fbsd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eelf32ppchaiku.Po@am__quote@

@@ -257,6 +257,7 @@ ALL_EMULATION_SOURCES = \
 	eelf32mt.c \
 	eelf32or1k.c \
 	eelf32or1k_linux.c \
+	eelf32p16.c \
 	eelf32ppc.c \
 	eelf32ppc_fbsd.c \
 	eelf32ppchaiku.c \

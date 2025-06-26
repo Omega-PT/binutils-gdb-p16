@@ -32,23 +32,23 @@ const inst p16_instruction[] =
   {"and",   INST_LEN, 0xC000, 0xF800, ARITH_BYTE_INS, {{regr, 0}, {low_regr, 4}, {regr, 7}}},
   {"asr",   INST_LEN, 0xF000, 0xF800, SHIFT_INS, {{regr, 0}, {low_regr, 4}, {uimm4, 7}}},
 
-  {"b",     INST_LEN, 0x5800, 0xFC00, BRANCH_INS, {{imm10, 0}}},
+  {"b",     INST_LEN, 0x5800, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
 
-  {"bcc",   INST_LEN, 0x4C00, 0xFC00, BRANCH_INS, {{imm10, 0}}},
-  {"blo",   INST_LEN, 0x4C00, 0xFC00, BRANCH_INS, {{imm10, 0}}},
+  {"bcc",   INST_LEN, 0x4C00, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
+  {"blo",   INST_LEN, 0x4C00, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
 
-  {"bcs",   INST_LEN, 0x4800, 0xFC00, BRANCH_INS, {{imm10, 0}}},
-  {"bhs",   INST_LEN, 0x4800, 0xFC00, BRANCH_INS, {{imm10, 0}}},
+  {"bcs",   INST_LEN, 0x4800, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
+  {"bhs",   INST_LEN, 0x4800, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
 
-  {"bge",   INST_LEN, 0x5000, 0xFC00, BRANCH_INS, {{imm10, 0}}},
-  {"bl",    INST_LEN, 0x5C00, 0xFC00, BRANCH_INS, {{imm10, 0}}},
-  {"blt",   INST_LEN, 0x5400, 0xFC00, BRANCH_INS, {{imm10, 0}}},
+  {"bge",   INST_LEN, 0x5000, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
+  {"bl",    INST_LEN, 0x5C00, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
+  {"blt",   INST_LEN, 0x5400, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
   
-  {"bzc",   INST_LEN, 0x4400, 0xFC00, BRANCH_INS, {{imm10, 0}}},
-  {"bne",   INST_LEN, 0x4400, 0xFC00, BRANCH_INS, {{imm10, 0}}},
+  {"bzc",   INST_LEN, 0x4400, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
+  {"bne",   INST_LEN, 0x4400, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
 
-  {"bzs",   INST_LEN, 0x4000, 0xFC00, BRANCH_INS, {{imm10, 0}}},
-  {"beq",   INST_LEN, 0x4000, 0xFC00, BRANCH_INS, {{imm10, 0}}},
+  {"bzs",   INST_LEN, 0x4000, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
+  {"beq",   INST_LEN, 0x4000, 0xFC00, BRANCH_INS, {{imm11_even, 0}}},
 
   {"cmp",   INST_LEN, 0xB800, 0xF800, ARITH_BYTE_INS, {{low_regr, 4}, {regr, 7}}},
 

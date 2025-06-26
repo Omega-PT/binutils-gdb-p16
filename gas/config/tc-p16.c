@@ -61,6 +61,9 @@ const inst *current_instruction_template;
 /* Variable that holds an instruction's encoding (always 2 bytes) */
 short global_output_opcode;
 
+/* Nonzero means a relocatable symbol.  */
+int global_is_relocatable;
+
 /* A copy of the original instruction (used in error messages).  */
 char global_ins_parse[MAX_INST_LEN];
 
@@ -257,6 +260,17 @@ void md_operand(expressionS *expressionP ATTRIBUTE_UNUSED) {
     return;
 }
 
+/* Reset global variables before parsing a new instruction.  */
+static void reset_global_vars(char *op) {
+    global_cur_arg_num = 0;
+    global_is_relocatable = 0;
+    global_output_opcode = 0x0000;
+
+    /* Save a copy of the original OP (used in error messages).  */
+    strncpy(global_ins_parse, op, sizeof global_ins_parse - 1);
+    global_ins_parse[sizeof global_ins_parse - 1] = 0;
+}
+
 /* Process constant values and labels.  */
 static int process_labels_and_constants(char *string, assembling_ins *p16_assembling_ins) {
     parsed_argument *cur_arg = p16_assembling_ins->arg + global_cur_arg_num;
@@ -288,13 +302,28 @@ static int process_labels_and_constants(char *string, assembling_ins *p16_assemb
             p16_assembling_ins->exp.X_op_symbol = NULL;
             /* Fall through to the constant case.  */
         
-            case O_constant:
-                cur_arg->X_op = O_constant;
-                cur_arg->constant = p16_assembling_ins->exp.X_add_number;
-                break;
-            
-            default:
-                break;
+        case O_constant:
+            cur_arg->X_op = O_constant;
+            cur_arg->constant = p16_assembling_ins->exp.X_add_number;
+            break;
+        
+        case O_symbol:
+            cur_arg->X_op = O_symbol;
+            cur_arg->constant = p16_assembling_ins->exp.X_add_number;
+            p16_assembling_ins->exp.X_add_number = 0;
+            p16_assembling_ins->rtype = BFD_RELOC_NONE;
+            global_is_relocatable = true;
+
+            /* Since it's a symbol, figure out what relocation it needs.  */
+            if (cur_arg->type == arg_c) {
+                if (IS_INSN_TYPE(BRANCH_INS)) {
+                    p16_assembling_ins->rtype = BFD_RELOC_P16_IMM11_EVEN;
+                }
+            }
+        
+        default:
+            cur_arg->X_op = p16_assembling_ins->exp.X_op;
+            break;
     }
 
     input_line_pointer = input_line_pointer_backup;
@@ -312,12 +341,15 @@ static int set_operand(assembling_ins *p16_assembling_ins, char *operand) {
     operandS = operandE = operand;
 
     switch (cur_arg->type) {
-        case arg_ic: /* Constant value, #0xFF, #123, etc...  */
+        case arg_ic:    /* Constant value, #0xFF, #123, etc...  */
             operandS++;
+            /* Fall through.  */
+        case arg_c:     /* Symbol */
             if (!process_labels_and_constants(operandS, p16_assembling_ins)) {
                 return 0;
             }
             printf("Processed constant: %d\n", cur_arg->constant);
+            break;
     }
 
     return 1;
@@ -376,12 +408,16 @@ static int parse_single_operand(assembling_ins *p16_assembling_ins, char *operan
     switch (operand[0]) {
         case '#':
             cur_arg->type = arg_ic;
+            goto set_params;
             break;
     }
 
-    cur_arg->constant = 0;
+    /* If not, it could be a symbol, so we set a different arg type.  */
+    cur_arg->type = arg_c;
 
+set_params:
     /* Parse an operand according to its type.  */
+    cur_arg->constant = 0;
     if (!set_operand(p16_assembling_ins, operand)) {
         return 0;
     }
@@ -528,6 +564,7 @@ static void print_operand(int nbits, int shift, parsed_argument *arg) {
             break;
         
         case arg_ic:
+        case arg_c:
             unsigned long mask = (1 << nbits) - 1;
             unsigned long value1 = (arg->constant & mask);
             global_output_opcode |= ((arg->constant & mask) << shift);
@@ -682,9 +719,32 @@ cur_type, cur_size and cur_flags.  */
 
 /* Print the instruction. */
 static void print_instruction(assembling_ins *p16_assembling_ins) {
-    char *frag = frag_more(2);
+    char *this_frag = frag_more(2);
 
-    md_number_to_chars(frag, global_output_opcode, 2);
+    /* Handle relocations.  */
+    bfd_reloc_code_real_type reloc_type = p16_assembling_ins->rtype;
+
+    if ((global_is_relocatable) && reloc_type != BFD_RELOC_NONE) {
+        reloc_howto_type *reloc_howto;
+        int size;
+
+        reloc_howto = bfd_reloc_type_lookup(stdoutput, reloc_type);
+
+        if (!reloc_howto) abort();
+
+        size = bfd_get_reloc_size(reloc_howto);
+
+        fix_new_exp(
+            frag_now,
+            this_frag - frag_now->fr_literal,
+            size,
+            &p16_assembling_ins->exp,
+            reloc_howto->pc_relative,
+            p16_assembling_ins->rtype
+        );
+    }
+
+    md_number_to_chars(this_frag, global_output_opcode, 2);
 }
 
 /* Actually assemble an instruction.  */
@@ -717,8 +777,10 @@ static int p16_assemble(const char *op, char *param) {
 /* The function that assembles one assembly instruction 
     and outputs its coresponding machine code*/
 void md_assemble(char *op) {
-    char *debug_string = strdup(op);
     char *param;
+
+    /* Resets global variables for next instruction.  */
+    reset_global_vars(op);
 
     /* Strips the mnemonic.  */
     for (param = op; *param != 0 && !ISSPACE (*param); param++);
@@ -732,5 +794,5 @@ void md_assemble(char *op) {
         return;
     }
 
-    printf("Successful: %s\n", debug_string);
+    printf("Successful: %s\n", global_ins_parse);
 }

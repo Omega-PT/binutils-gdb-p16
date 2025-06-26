@@ -66,14 +66,16 @@ reg_type;
 
    Argument types :
    r - register
+   pr - processor register.  
    ic - immediate
-   pr - processor register.  */
+   c - constant value from a symbol.  */
 
 typedef enum
 {
-  arg_r,
+  arg_r,  
   arg_pr,
   arg_ic,
+  arg_c,
 
   /* Not an argument.  */
   nullargs

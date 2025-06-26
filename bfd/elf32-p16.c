@@ -70,8 +70,8 @@ static reloc_howto_type p16_elf_howto_table[] =
 		"R_P16_IMM7_EVEN",	/* name */
 		false,				/* partial_inplace */
 		0,					/* src_mask */
-		0xF,				/* dst_mask */
-		false				/* pcrel_offset */
+		0x7F,				/* dst_mask */
+		true				/* pcrel_offset */
 	),
 	HOWTO (
 		R_P16_IMM11_EVEN,	/* type */
@@ -85,8 +85,8 @@ static reloc_howto_type p16_elf_howto_table[] =
 		"R_P16_IMM11_EVEN",	/* name */
 		false,				/* partial_inplace */
 		0,					/* src_mask */
-		0xFF,				/* dst_mask */
-		false				/* pcrel_offset */
+		0x3FF,				/* dst_mask */
+		true				/* pcrel_offset */
 	),
 };
 
@@ -156,6 +156,23 @@ static bfd_reloc_status_type p16_elf_final_link_relocate(
 	asection *sec ATTRIBUTE_UNUSED,
 	int is_local ATTRIBUTE_UNUSED	
 ) {
+	/* An important quirk of the P16 processor is that when an instruction is being processed,
+	the program counter already advances to the next instruction, example:
+	
+	some_label:
+		add r0, r1, r2
+		b some_label
+		sub r0, r1, r2
+
+	
+	The value used in the branch would be -4 bytes instead of -2 bytes, since the program
+	counter is already in the sub instruction (needs to go 2 instructions/4 bytes upwards)
+	*/
+
+	if (howto->pc_relative) {
+		addend -= 2;
+	}
+
 	bfd_reloc_status_type r;
 
 	r = _bfd_final_link_relocate(

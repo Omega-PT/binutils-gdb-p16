@@ -7479,6 +7479,8 @@ enum bfd_reloc_code_real
   BFD_RELOC_P16_UIMM7_EVEN,
   BFD_RELOC_P16_UIMM8,
   BFD_RELOC_P16_IMM11_EVEN,
+  BFD_RELOC_P16_NUM8,
+  BFD_RELOC_P16_NUM16,
   BFD_RELOC_UNUSED
 };
 typedef enum bfd_reloc_code_real bfd_reloc_code_real_type;

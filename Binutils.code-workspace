@@ -40,7 +40,8 @@
 			"*.def": "c",
 			"compare": "c",
 			"random": "c",
-			"format": "c"
+			"format": "c",
+			"elf32-target.h": "c"
 		}
 	}
 }

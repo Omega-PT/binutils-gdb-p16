@@ -214,6 +214,24 @@ valueT md_section_align(asection *seg, valueT addr) {
     return ((addr + (1 << align) - 1) & -(1 << align));
 }
 
+/* Record a fixup for a cons expression.  */
+
+void p16_cons_fix_new(
+    fragS *frag,
+    int offset,
+    int len,
+    expressionS *exp,
+    bfd_reloc_code_real_type rtype
+) {
+    switch (len) {
+        default: rtype = BFD_RELOC_NONE; break;
+        case 1: rtype = BFD_RELOC_P16_NUM8 ; break;
+        case 2: rtype = BFD_RELOC_P16_NUM16; break;
+    }
+
+    fix_new_exp (frag, offset, len, exp, 0, rtype);
+}
+
 /* Generate the BFD reloc to be stuck in the object file from the
    fixup used internally in the assembler.  */
 arelent *tc_gen_reloc(asection *sec ATTRIBUTE_UNUSED, fixS *fixp) {

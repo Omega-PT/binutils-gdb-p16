@@ -43,6 +43,8 @@ static const struct p16_reloc_map p16_reloc_map[R_P16_MAX] =
 	{BFD_RELOC_P16_UIMM7_EVEN,	R_P16_UIMM7_EVEN},
 	{BFD_RELOC_P16_UIMM8,		R_P16_UIMM8},
 	{BFD_RELOC_P16_IMM11_EVEN,	R_P16_IMM11_EVEN},
+	{BFD_RELOC_P16_NUM8,		R_P16_NUM8},
+	{BFD_RELOC_P16_IMM16,		R_P16_NUM16},
 };
 
 static reloc_howto_type p16_elf_howto_table[] =

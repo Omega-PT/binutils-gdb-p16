@@ -35,4 +35,11 @@
 
 #define md_number_to_chars      number_to_chars_littleendian
 
+extern void p16_cons_fix_new(struct frag *, int, int, struct expressionS *, bfd_reloc_code_real_type);
+/* This is called by emit_expr when creating a reloc for a cons.
+We could use the definition there, except that we want to handle
+the CR16 reloc type specially, rather than the BFD_RELOC type.  */
+#define TC_CONS_FIX_NEW(FRAG, OFF, LEN, EXP, RELOC)	\
+p16_cons_fix_new (FRAG, OFF, LEN, EXP, RELOC)
+
 #endif /* TC_P16_H */

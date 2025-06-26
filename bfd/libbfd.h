@@ -3632,6 +3632,8 @@ static const char *const bfd_reloc_code_real_names[] = { "@@uninitialized@@",
   "BFD_RELOC_P16_UIMM7_EVEN",
   "BFD_RELOC_P16_UIMM8",
   "BFD_RELOC_P16_IMM11_EVEN",
+  "BFD_RELOC_P16_NUM8",
+  "BFD_RELOC_P16_NUM16",
  "@@overflow: BFD_RELOC_UNUSED@@",
 };
 #endif

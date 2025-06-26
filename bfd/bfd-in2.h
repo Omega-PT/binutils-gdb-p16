@@ -7473,7 +7473,8 @@ enum bfd_reloc_code_real
   BFD_RELOC_LARCH_TLS_DESC_PCREL20_S2,
 
   /* P16 relocations.  */
-  BFD_RELOC_P16_IMM8,
+  BFD_RELOC_P16_IMM7_EVEN,
+  BFD_RELOC_P16_IMM11_EVEN,
   BFD_RELOC_UNUSED
 };
 typedef enum bfd_reloc_code_real bfd_reloc_code_real_type;

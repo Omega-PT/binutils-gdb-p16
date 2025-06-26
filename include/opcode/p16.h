@@ -86,8 +86,8 @@ argtype;
 typedef enum
 {
   dummy,
-  /* N-bit signed immediate, only used for branches. */
-  imm10,
+  /* N-bit signed immediate, only used for branches (last bit discarded, only 10 bits used) */
+  imm11_even,
   /* N-bit unsigned immediate. */
   uimm3, uimm4, uimm8,
   /* Even unsigned immediate (least significant bit will be discarded).  */

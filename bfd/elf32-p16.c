@@ -36,41 +36,57 @@ struct p16_reloc_map
 /* The map */
 static const struct p16_reloc_map p16_reloc_map[R_P16_MAX] =
 {
-	{BFD_RELOC_NONE,		R_P16_NONE},
-	{BFD_RELOC_P16_IMM8,	R_P16_IMM8},
+	{BFD_RELOC_NONE,			R_P16_NONE},
+	{BFD_RELOC_P16_IMM7_EVEN,	R_P16_IMM7_EVEN},
+	{BFD_RELOC_P16_IMM11_EVEN,	R_P16_IMM11_EVEN},
 };
 
 static reloc_howto_type p16_elf_howto_table[] =
 {
 	HOWTO (
-		R_P16_NONE,	/* type */
-		0,				/* rightshift */
-		0,				/* size */
-		0,				/* bitsize */
-		false,			/* pc_relative */
-		0,				/* bitpos */
+		R_P16_NONE,			/* type */
+		0,					/* rightshift */
+		0,					/* size */
+		0,					/* bitsize */
+		false,				/* pc_relative */
+		0,					/* bitpos */
 		complain_overflow_dont,		/* complain_on_overflow */
 		bfd_elf_generic_reloc,		/* special_function */
-		"R_P16_NONE",	/* name */
-		false,			/* partial_inplace */
-		0,				/* src_mask */
-		0,				/* dst_mask */
-		false			/* pcrel_offset */
+		"R_P16_NONE",		/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
+		0,					/* dst_mask */
+		false				/* pcrel_offset */
 	),
 	HOWTO (
-		R_P16_IMM8,	/* type */
-		0,				/* rightshift */
-		1,				/* size */
-		8,				/* bitsize */
-		false,			/* pc_relative */
-		0,				/* bitpos */
-		complain_overflow_dont,		/* complain_on_overflow */
+		R_P16_IMM7_EVEN,	/* type */
+		1,					/* rightshift */
+		1,					/* size */
+		6,					/* bitsize */
+		true,				/* pc_relative */
+		4,					/* bitpos */
+		complain_overflow_bitfield,	/* complain_on_overflow */
 		bfd_elf_generic_reloc,		/* special_function */
-		"R_P16_NONE",	/* name */
-		false,			/* partial_inplace */
-		0,				/* src_mask */
+		"R_P16_IMM7_EVEN",	/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
+		0xF,				/* dst_mask */
+		false				/* pcrel_offset */
+	),
+	HOWTO (
+		R_P16_IMM11_EVEN,	/* type */
+		1,					/* rightshift */
+		2,					/* size */
+		10,					/* bitsize */
+		true,				/* pc_relative */
+		0,					/* bitpos */
+		complain_overflow_bitfield,	/* complain_on_overflow */
+		bfd_elf_generic_reloc,		/* special_function */
+		"R_P16_IMM11_EVEN",	/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
 		0xFF,				/* dst_mask */
-		false			/* pcrel_offset */
+		false				/* pcrel_offset */
 	),
 };
 

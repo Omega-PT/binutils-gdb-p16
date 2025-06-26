@@ -25,8 +25,9 @@
 /* Creating indices for reloc_map_index array.  */
 
 START_RELOC_NUMBERS(elf_p16_reloc_type)
-  RELOC_NUMBER (R_P16_NONE,           0)
-  RELOC_NUMBER (R_P16_IMM8,           1)
+  RELOC_NUMBER (R_P16_NONE,         0)
+  RELOC_NUMBER (R_P16_IMM7_EVEN,    1)
+  RELOC_NUMBER (R_P16_IMM11_EVEN,   2)
 END_RELOC_NUMBERS(R_P16_MAX)
         
 #endif /* _ELF_P16_H */

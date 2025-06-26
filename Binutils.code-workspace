@@ -36,7 +36,11 @@
 			"bfdlink.h": "c",
 			"elf32-p16.h": "c",
 			"functional": "c",
-			"expr.h": "c"
+			"expr.h": "c",
+			"*.def": "c",
+			"compare": "c",
+			"random": "c",
+			"format": "c"
 		}
 	}
 }

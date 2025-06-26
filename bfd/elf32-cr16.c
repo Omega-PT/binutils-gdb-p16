@@ -647,6 +647,9 @@ elf_cr16_reloc_type_lookup (bfd *abfd,
 {
   unsigned int i;
 
+  printf("Relocation code: %d\n", code);
+  printf("Max = %d\n", R_CR16_MAX);
+
   for (i = 0; i < R_CR16_MAX; i++)
     if (code == cr16_reloc_map[i].bfd_reloc_enum)
       return &cr16_elf_howto_table[cr16_reloc_map[i].cr16_reloc_type];

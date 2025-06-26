@@ -219,6 +219,8 @@ valueT md_section_align(asection *seg, valueT addr) {
 arelent *tc_gen_reloc(asection *sec ATTRIBUTE_UNUSED, fixS *fixp) {
     arelent *reloc;
 
+    printf("\nInside tc gen reloc\n\n\n");
+
     reloc = notes_alloc (sizeof (arelent));
     reloc->sym_ptr_ptr = notes_alloc (sizeof (asymbol *));
     *reloc->sym_ptr_ptr = symbol_get_bfdsym (fixp->fx_addsy);
@@ -291,6 +293,8 @@ static int process_labels_and_constants(char *string, assembling_ins *p16_assemb
         return 0;
     }
 
+    p16_assembling_ins->rtype = BFD_RELOC_NONE;
+
     switch (p16_assembling_ins->exp.X_op) {
         case O_big:
         case O_absent:
@@ -336,6 +340,10 @@ static int process_labels_and_constants(char *string, assembling_ins *p16_assemb
                 }
 
                 if (IS_INSN_TYPE(LD_STOR_INS)) {
+                    if (IS_INSN_MNEMONIC("ldr") && p16_assembling_ins->nargs == 2) {
+                        p16_assembling_ins->rtype = BFD_RELOC_P16_UIMM7_EVEN;
+                        break;
+                    }
                     if (IS_INSN_MNEMONIC("ldrb") || IS_INSN_MNEMONIC("strb")) {
                         p16_assembling_ins->rtype = BFD_RELOC_P16_UIMM3;
                         break;
@@ -353,6 +361,8 @@ static int process_labels_and_constants(char *string, assembling_ins *p16_assemb
             cur_arg->X_op = p16_assembling_ins->exp.X_op;
             break;
     }
+
+    printf("Processed symbol, type: %d, xop: %d\n", p16_assembling_ins->rtype, cur_arg->X_op);
 
     input_line_pointer = input_line_pointer_backup;
     return 1;
@@ -752,6 +762,9 @@ static void print_instruction(assembling_ins *p16_assembling_ins) {
     /* Handle relocations.  */
     bfd_reloc_code_real_type reloc_type = p16_assembling_ins->rtype;
 
+    printf("Relocatable? ");
+    (global_is_relocatable) ? printf("True\n") : printf("False\n");
+
     if ((global_is_relocatable) && reloc_type != BFD_RELOC_NONE) {
         reloc_howto_type *reloc_howto;
         int size;
@@ -822,5 +835,5 @@ void md_assemble(char *op) {
         return;
     }
 
-    printf("Successful: %s\n", global_ins_parse);
+    printf("Successful: %s\n\n", global_ins_parse);
 }

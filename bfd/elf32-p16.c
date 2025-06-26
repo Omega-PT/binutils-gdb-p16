@@ -180,15 +180,23 @@ static reloc_howto_type *elf_p16_reloc_type_lookup(
 	bfd *abfd,
 	bfd_reloc_code_real_type code
 ) {
-  unsigned int i;
+	unsigned int i;
+	printf("Relocation code: %d\n", code);
+	printf("Max = %d\n", R_P16_MAX);
 
-  for (i = 0; i < R_P16_MAX; i++)
-    if (code == p16_reloc_map[i].bfd_reloc_enum)
-      return &p16_elf_howto_table[p16_reloc_map[i].p16_reloc_type];
+	for (i = 0; i < R_P16_MAX; i++) {
+		printf("Reloc table entry (index:%d) %d->%d\n", i, code, p16_reloc_map[i].bfd_reloc_enum);
 
-  _bfd_error_handler (_("%pB: unsupported relocation type %#x"),
-		      abfd, code);
-  return NULL;
+		if (code == p16_reloc_map[i].bfd_reloc_enum) {
+			return &p16_elf_howto_table[p16_reloc_map[i].p16_reloc_type];
+		}
+	}
+
+	printf("Before error\n");
+
+	_bfd_error_handler (_("%pB: unsupported relocation type %#x"),
+				abfd, code);
+	return NULL;
 }
 
 /* Retrieves a howto pointer by searching its name */

@@ -300,7 +300,7 @@ static int process_labels_and_constants(char *string, assembling_ins *p16_assemb
             p16_assembling_ins->exp.X_add_number = 0;
             p16_assembling_ins->exp.X_add_symbol = NULL;
             p16_assembling_ins->exp.X_op_symbol = NULL;
-            /* Fall through to the constant case.  */
+            /* Fallthrough.  */
         
         case O_constant:
             cur_arg->X_op = O_constant;
@@ -320,6 +320,8 @@ static int process_labels_and_constants(char *string, assembling_ins *p16_assemb
                     p16_assembling_ins->rtype = BFD_RELOC_P16_IMM11_EVEN;
                 }
             }
+
+            break;
         
         default:
             cur_arg->X_op = p16_assembling_ins->exp.X_op;

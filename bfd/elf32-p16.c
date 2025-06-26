@@ -44,7 +44,7 @@ static const struct p16_reloc_map p16_reloc_map[R_P16_MAX] =
 	{BFD_RELOC_P16_UIMM8,		R_P16_UIMM8},
 	{BFD_RELOC_P16_IMM11_EVEN,	R_P16_IMM11_EVEN},
 	{BFD_RELOC_P16_NUM8,		R_P16_NUM8},
-	{BFD_RELOC_P16_IMM16,		R_P16_NUM16},
+	{BFD_RELOC_P16_NUM16,		R_P16_NUM16},
 };
 
 static reloc_howto_type p16_elf_howto_table[] =
@@ -153,6 +153,36 @@ static reloc_howto_type p16_elf_howto_table[] =
 		0,					/* src_mask */
 		0x3FF,				/* dst_mask */
 		true				/* pcrel_offset */
+	),
+	HOWTO (
+		R_P16_NUM8,			/* type */
+		0,					/* rightshift */
+		1,					/* size */
+		8,					/* bitsize */
+		false,				/* pc_relative */
+		0,					/* bitpos */
+		complain_overflow_bitfield,	/* complain_on_overflow */
+		bfd_elf_generic_reloc,		/* special_function */
+		"R_P16_NUM8",		/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
+		0xFF,				/* dst_mask */
+		false				/* pcrel_offset */
+	),
+	HOWTO (
+		R_P16_NUM16,		/* type */
+		0,					/* rightshift */
+		2,					/* size */
+		16,					/* bitsize */
+		false,				/* pc_relative */
+		0,					/* bitpos */
+		complain_overflow_bitfield,	/* complain_on_overflow */
+		bfd_elf_generic_reloc,		/* special_function */
+		"R_P16_NUM16",		/* name */
+		false,				/* partial_inplace */
+		0,					/* src_mask */
+		0xFFFF,				/* dst_mask */
+		false				/* pcrel_offset */
 	),
 };
 

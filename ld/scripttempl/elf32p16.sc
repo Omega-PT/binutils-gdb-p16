@@ -18,7 +18,7 @@ test -n "${RELOCATING}" || exit 0
 test -z "$ENTRY" && ENTRY=_start
 cat <<EOF
 
-/* Example Linker Script for linking NS CR16 elf32 files.
+/* Example Linker Script for linking  ISEL P16 elf32 files.
    Copyright (C) 2014-2025 Free Software Foundation, Inc.
 
    Copying and distribution of this script, with or without modification,

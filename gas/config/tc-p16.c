@@ -380,7 +380,7 @@ static int process_labels_and_constants(char *string, assembling_ins *p16_assemb
             break;
     }
 
-    printf("Processed symbol, type: %d, xop: %d\n", p16_assembling_ins->rtype, cur_arg->X_op);
+    printf("Processed label/const, type: %d, xop: %d\n", p16_assembling_ins->rtype, cur_arg->X_op);
 
     input_line_pointer = input_line_pointer_backup;
     return 1;

@@ -35,8 +35,7 @@ ENTRY(${ENTRY})
 /* Define memory regions.  */
 MEMORY
 {
-	rom	    : ORIGIN = 0x0000,	    LENGTH = 3M
-	ram	    : ORIGIN = 0x0000,	    LENGTH = 10M
+	ram	    : ORIGIN = 0x0000,	    LENGTH = 64k
 }
 
 EOF
@@ -83,7 +82,7 @@ SECTIONS
 
 EOF
 
-source_sh $srcdir/scripttempl/misc-sections.sc rom
+source_sh $srcdir/scripttempl/misc-sections.sc ram
 source_sh $srcdir/scripttempl/DWARF.sc
 
 cat <<EOF

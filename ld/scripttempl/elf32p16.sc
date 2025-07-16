@@ -35,7 +35,7 @@ ENTRY(${ENTRY})
 /* Define memory regions.  */
 MEMORY
 {
-	ram	    : ORIGIN = 0x0000,	    LENGTH = 64k
+	ram	    : ORIGIN = 0x0000,	    LENGTH = 64K
 }
 
 EOF
@@ -78,6 +78,11 @@ SECTIONS
     __BSS_START = .;
     *(.bss_4) *(.bss_2) *(.bss_1) *(.bss) *(COMMON) *(.bss.*) *(.gnu.linkonce.b.*)
     __BSS_END = .;
+  }${RELOCATING+ > ram}
+
+  .stack (NOLOAD) :
+  {
+    __STACK_START = .;
   }${RELOCATING+ > ram}
 
 EOF

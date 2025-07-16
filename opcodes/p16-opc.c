@@ -132,7 +132,7 @@ const reg_entry p16_pregtab[] = {
 };
 const unsigned int p16_num_pregs =  ARRAY_SIZE (p16_pregtab);
 
-/* P16 operands table. (Incomplete) */
+/* P16 operands table. */
 /* Order needs to be the same as the operand_type enum.  */
 const operand_entry p16_optab[] = {
     /* Index 0 is dummy, so we can count the instruction's operands.  */

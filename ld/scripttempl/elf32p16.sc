@@ -71,7 +71,7 @@ SECTIONS
     __DATA_START = .;
     *(.data_4) *(.data_2) *(.data_1) *(.data) *(.data.*) *(.gnu.linkonce.d.*)
     __DATA_END = .;
-  }${RELOCATING+ > ram}s
+  }${RELOCATING+ > ram}
 
   .bss (NOLOAD) :
   {

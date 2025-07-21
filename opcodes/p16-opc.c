@@ -152,7 +152,7 @@ const unsigned int p16_num_optab = ARRAY_SIZE (p16_optab);
 /* P16 traps/interrupts.  */
 const trap_entry p16_traps[] =
 {
-   /* TODO.  */
+   /* EMPTY.  */
 };
 const unsigned int p16_num_traps = ARRAY_SIZE (p16_traps);
 
